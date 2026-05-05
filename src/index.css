@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Epilogue:wght@800;900&family=Inter:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-electric-pink: #FF2D92;
+  --color-surface: #f9f9f9;
+  --color-surface-dim: #dadada;
+  --color-surface-container: #eeeeee;
+  
+  --font-headline: "Epilogue", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Space Grotesk", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer utilities {
+  .neo-shadow {
+    box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+  }
+  .neo-shadow-lg {
+    box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+  }
+  .neo-shadow-pink {
+    box-shadow: 4px 4px 0px 0px #FF2D92;
+  }
+  .neo-shadow-pink-lg {
+    box-shadow: 8px 8px 0px 0px #FF2D92;
+  }
+  .neo-button {
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .neo-button:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px 0px rgba(0,0,0,1);
+  }
+  .neo-button:active {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+  }
+  .neo-hover-sink:hover {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px 0px rgba(0,0,0,1);
+  }
+  .neo-hover-sink-pink:hover {
+    transform: translate(8px, 8px);
+    box-shadow: 0px 0px 0px 0px #FF2D92;
+  }
+  .neo-border {
+    border: 2px solid black;
+  }
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-surface);
+  color: black;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-headline);
+}
