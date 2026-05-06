@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Conversation } from '@11labs/client';
+import { Conversation } from '@elevenlabs/client';
 
 export interface ParsedFilters {
   category?: string[];
