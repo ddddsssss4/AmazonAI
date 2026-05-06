@@ -1,5 +1,5 @@
 import { ShoppingCart, Heart, ArrowLeft, ArrowRight, Zap, Star, ChevronDown, ChevronUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import VoiceFilterButton from '../components/VoiceFilterButton';
 import ProductHoverSpeaker from '../components/ProductHoverSpeaker';
@@ -455,6 +455,7 @@ function FilterSection({ title, children, defaultOpen = true }: { title: string;
 
 // ── main component ────────────────────────────────────────────��────────────────
 export default function Shop() {
+  const navigate = useNavigate();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedColours, setSelectedColours] = useState<string[]>([]);
@@ -721,6 +722,16 @@ export default function Shop() {
 
       {/* ── Main Content ──────────────────────────────────────────────────── */}
       <section className="flex-grow min-w-0">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-6 flex items-center gap-2 font-mono text-sm font-bold uppercase hover:text-electric-pink transition-colors group"
+          aria-label="Go back"
+        >
+          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+          Back
+        </button>
+
         {/* Header */}
         <div className="mb-8 border-b-2 border-black pb-6 flex flex-col md:flex-row justify-between items-end gap-4">
           <div>

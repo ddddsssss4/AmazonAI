@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingBag, ChevronDown, ArrowLeft, Star } from 'lucide-react';
 import { getProductById, ALL_PRODUCTS } from '../data/products';
 
 export default function Product() {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const product = getProductById(Number(id)) ?? ALL_PRODUCTS[1]; // fallback to headphones
 
@@ -23,12 +24,13 @@ export default function Product() {
   return (
     <div className="flex-grow w-full max-w-7xl mx-auto px-6 py-8 mb-24">
       {/* Back link */}
-      <Link
-        to="/shop"
-        className="inline-flex items-center gap-2 font-mono text-sm font-bold uppercase hover:text-electric-pink transition-colors mb-8"
+      <button
+        onClick={() => navigate(-1)}
+        className="inline-flex items-center gap-2 font-mono text-sm font-bold uppercase hover:text-electric-pink transition-colors mb-8 group"
+        aria-label="Go back"
       >
-        <ArrowLeft size={16} /> Back to Shop
-      </Link>
+        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back
+      </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left: Image gallery */}
