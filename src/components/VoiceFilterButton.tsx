@@ -9,19 +9,19 @@ export default function VoiceFilterButton({ onFiltersDetected }: VoiceFilterButt
   const { isListening, isProcessing, error, startListening, stopListening } = useElevenLabsAgent();
 
   const handleMouseDown = async () => {
-    await startListening();
+    await startListening(onFiltersDetected);
   };
 
   const handleMouseUp = async () => {
-    await stopListening(onFiltersDetected);
+    await stopListening();
   };
 
   const handleTouchStart = async () => {
-    await startListening();
+    await startListening(onFiltersDetected);
   };
 
   const handleTouchEnd = async () => {
-    await stopListening(onFiltersDetected);
+    await stopListening();
   };
 
   return (

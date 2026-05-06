@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 
-// Point directly at the Express backend (CORS * is enabled on the server)
-const BACKEND_URL = 'http://localhost:3001';
+// Relative path — Vite proxy forwards /api/* to localhost:3001 server-side (no mixed content issue)
+const BACKEND_URL = '';
 
 export interface TextToSpeechOptions {
   voiceId?: string; // Voice ID from ElevenLabs
