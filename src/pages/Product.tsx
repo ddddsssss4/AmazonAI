@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ShoppingBag, ChevronDown, ArrowLeft, Star } from 'lucide-react';
+import { ShoppingBag, ChevronDown, ArrowLeft, Star, Volume2, Loader } from 'lucide-react';
 import { getProductById, ALL_PRODUCTS } from '../data/products';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
 
 export default function Product() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ export default function Product() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColour, setSelectedColour] = useState(product.colours[0]);
   const [quantity, setQuantity] = useState(1);
+  const { speak, isSpeaking, isLoading, error: speakError } = useTextToSpeech();
 
   // pick 3 related products from the same category (excluding self)
   const related = ALL_PRODUCTS.filter(
@@ -80,7 +82,22 @@ export default function Product() {
             <h1 className="font-headline text-[40px] md:text-[48px] uppercase font-black text-black leading-tight text-balance">
               {product.name}
             </h1>
-            <p className="font-body text-lg text-gray-700 leading-relaxed">{product.longDescription}</p>
+            <div className="flex items-start gap-4">
+              <p className="font-body text-lg text-gray-700 leading-relaxed flex-1">{product.longDescription}</p>
+              <button
+                onClick={() => speak(product.longDescription)}
+                disabled={isLoading}
+                className="flex-shrink-0 mt-1 p-2 hover:bg-surface-container border-2 border-black transition-colors disabled:opacity-50 group"
+                title="Listen to product description"
+                aria-label={isSpeaking ? "Stop listening" : "Listen to description"}
+              >
+                {isLoading ? (
+                  <Loader size={20} className="animate-spin" />
+                ) : (
+                  <Volume2 size={20} className={`${isSpeaking ? 'text-electric-pink' : 'text-black'} group-hover:text-electric-pink transition-colors`} />
+                )}
+              </button>
+            </div>
 
             {/* Rating */}
             <div className="flex items-center gap-2 mt-1">
