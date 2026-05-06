@@ -19,10 +19,12 @@ interface Product {
   badge?: string;
   freeShipping: boolean;
   image: string;
+  size?: string;
 }
 
 // ── product data ───────────────────────────────────────────────────────────────
 const ALL_PRODUCTS: Product[] = [
+  // ── Tech ──
   {
     id: 1,
     name: 'Tactile Pro Keyboard',
@@ -186,7 +188,227 @@ const ALL_PRODUCTS: Product[] = [
     freeShipping: true,
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBT5gPdMlwNJ3Ax3e78e2sxLXy3qOdl0sxQNNOgpPLGv9H1FuH0i1WbF_GiOMt2h93mNZxf3JFqxeqfxk',
   },
+
+  // ── T-Shirts ──
+  {
+    id: 13,
+    name: 'Classic Cotton Crew Tee',
+    description: '100% pure cotton heavyweight tee. Pre-shrunk, drop-shoulder fit. Ribbed collar with double-needle hems.',
+    price: 22,
+    category: 'T-Shirts',
+    brand: 'Imsa Moda',
+    colour: 'White',
+    discount: 10,
+    rating: 4,
+    badge: 'Best Seller',
+    freeShipping: true,
+    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80',
+  },
+  {
+    id: 14,
+    name: 'Oversized Graphic Street Tee',
+    description: 'Boxy oversized cut in 240gsm cotton. Bold screen-print graphic. Unisex sizing runs large.',
+    price: 35,
+    category: 'T-Shirts',
+    brand: 'NexaFlair',
+    colour: 'Black',
+    discount: 25,
+    rating: 5,
+    badge: 'New',
+    freeShipping: true,
+    image: 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&q=80',
+  },
+  {
+    id: 15,
+    name: 'Performance Dry-Fit Tee',
+    description: 'Moisture-wicking polyester blend. 4-way stretch panel for unrestricted movement. UPF 40+ protection.',
+    price: 28,
+    category: 'T-Shirts',
+    brand: 'ESSA',
+    colour: 'Gray',
+    discount: 0,
+    rating: 4,
+    freeShipping: false,
+    image: 'https://images.unsplash.com/photo-1554568218-0f1715e72254?w=600&q=80',
+  },
+
+  // ── Dresses ──
+  {
+    id: 16,
+    name: 'Flowy Linen Midi Dress',
+    description: 'Breathable linen-blend midi dress. Adjustable tie waist, side pockets, and subtle A-line silhouette.',
+    price: 58,
+    category: 'Dresses',
+    brand: 'Imsa Moda',
+    colour: 'White',
+    discount: 35,
+    rating: 5,
+    badge: 'Best Seller',
+    freeShipping: true,
+    image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=600&q=80',
+  },
+  {
+    id: 17,
+    name: 'Bodycon Evening Dress',
+    description: 'Stretch velvet bodycon silhouette. Invisible back zip, sweetheart neckline, ankle length.',
+    price: 89,
+    category: 'Dresses',
+    brand: 'NexaFlair',
+    colour: 'Black',
+    discount: 10,
+    rating: 4,
+    badge: 'New',
+    freeShipping: true,
+    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&q=80',
+  },
+  {
+    id: 18,
+    name: 'Boho Floral Wrap Dress',
+    description: 'Viscose floral wrap dress with tiered hem. Self-tie belt, V-neckline, flutter sleeves.',
+    price: 45,
+    category: 'Dresses',
+    brand: 'DEELMO',
+    colour: 'Red',
+    discount: 50,
+    rating: 4,
+    badge: 'Deal',
+    freeShipping: false,
+    image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&q=80',
+  },
+
+  // ── Kurtas ──
+  {
+    id: 19,
+    name: 'Straight Cotton Kurta',
+    description: 'Classic straight-cut kurta in 100% hand-woven cotton. Mandarin collar with wooden button placket.',
+    price: 32,
+    category: 'Kurtas',
+    brand: 'GREGILOOKS',
+    colour: 'White',
+    discount: 10,
+    rating: 5,
+    badge: 'Best Seller',
+    freeShipping: true,
+    image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&q=80',
+  },
+  {
+    id: 20,
+    name: 'Embroidered Anarkali Kurta',
+    description: 'Flared Anarkali silhouette with intricate thread embroidery on yoke. Paired with inner lining.',
+    price: 65,
+    category: 'Kurtas',
+    brand: 'Imsa Moda',
+    colour: 'Blue',
+    discount: 25,
+    rating: 4,
+    freeShipping: true,
+    image: 'https://images.unsplash.com/photo-1594938298603-c8148c4b4267?w=600&q=80',
+  },
+  {
+    id: 21,
+    name: 'Block Print A-Line Kurta',
+    description: 'Hand block-printed A-line kurta in Jaipur cotton. Three-quarter sleeves, side slits.',
+    price: 41,
+    category: 'Kurtas',
+    brand: 'Samfor',
+    colour: 'Red',
+    discount: 35,
+    rating: 4,
+    badge: 'Deal',
+    freeShipping: false,
+    image: 'https://images.unsplash.com/photo-1614093302611-8efc4c499e3b?w=600&q=80',
+  },
+
+  // ── Sweatshirts ──
+  {
+    id: 22,
+    name: 'Essential Fleece Hoodie',
+    description: '380gsm brushed fleece hoodie. Kangaroo pocket, metal-tipped drawcord, ribbed cuffs and hem.',
+    price: 55,
+    category: 'Sweatshirts',
+    brand: 'AUSK',
+    colour: 'Gray',
+    discount: 10,
+    rating: 5,
+    badge: 'Best Seller',
+    freeShipping: true,
+    image: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80',
+  },
+  {
+    id: 23,
+    name: 'Vintage Crewneck Sweatshirt',
+    description: 'Garment-dyed heavyweight crew. 100% cotton, washed for a broken-in feel. Boxy relaxed fit.',
+    price: 48,
+    category: 'Sweatshirts',
+    brand: 'NexaFlair',
+    colour: 'Black',
+    discount: 25,
+    rating: 4,
+    freeShipping: true,
+    image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80',
+  },
+  {
+    id: 24,
+    name: 'Zip-Up Tech Fleece',
+    description: 'Engineered tech fleece with articulated seams. Full-zip, stand collar, zippered side pockets.',
+    price: 72,
+    category: 'Sweatshirts',
+    brand: 'ESSA',
+    colour: 'Blue',
+    discount: 0,
+    rating: 4,
+    badge: 'New',
+    freeShipping: true,
+    image: 'https://images.unsplash.com/photo-1509942774463-acf339cf87d5?w=600&q=80',
+  },
+
+  // ── Leather ──
+  {
+    id: 25,
+    name: 'Classic Biker Jacket',
+    description: 'Full-grain cowhide leather biker jacket. YKK zippers, quilted shoulder panels, snap-tab collar.',
+    price: 249,
+    category: 'Leather',
+    brand: 'DEELMO',
+    colour: 'Black',
+    discount: 10,
+    rating: 5,
+    badge: 'Top Rated',
+    freeShipping: true,
+    image: 'https://images.unsplash.com/photo-1548883354-94bcfe321cbb?w=600&q=80',
+  },
+  {
+    id: 26,
+    name: 'Suede Bomber Jacket',
+    description: 'Genuine suede bomber with ribbed trims. Satin lining, dual side-entry pockets, welt chest pocket.',
+    price: 189,
+    category: 'Leather',
+    brand: 'GREGILOOKS',
+    colour: 'Gray',
+    discount: 25,
+    rating: 4,
+    freeShipping: false,
+    image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80',
+  },
+  {
+    id: 27,
+    name: 'Slim Leather Blazer',
+    description: 'Nappa leather slim blazer. Notch lapel, two-button front, fully lined with welt pockets.',
+    price: 319,
+    category: 'Leather',
+    brand: 'Imsa Moda',
+    colour: 'Black',
+    discount: 35,
+    rating: 5,
+    badge: 'Deal',
+    freeShipping: true,
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80',
+  },
 ];
+
+const CATEGORIES_TECH = ['Keyboards', 'Audio', 'Power', 'Mice'];
+const CATEGORIES_CLOTHING = ['T-Shirts', 'Dresses', 'Kurtas', 'Sweatshirts', 'Leather'];
+const ALL_CATEGORIES = [...CATEGORIES_TECH, ...CATEGORIES_CLOTHING];
 
 const BRANDS = ['AUSK', 'Imsa Moda', 'NexaFlair', 'ESSA', 'Samfor', 'DEELMO', 'GREGILOOKS'];
 const COLOURS = [
@@ -197,6 +419,7 @@ const COLOURS = [
   { name: 'Blue', hex: '#3B82F6' },
   { name: 'Green', hex: '#22C55E' },
 ];
+const SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
 const DISCOUNT_TIERS = [10, 25, 35, 50, 60];
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -235,6 +458,7 @@ export default function Shop() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedColours, setSelectedColours] = useState<string[]>([]);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedPriceRange, setSelectedPriceRange] = useState<string | null>(null);
   const [minDiscount, setMinDiscount] = useState<number | null>(null);
   const [minRating, setMinRating] = useState<number | null>(null);
@@ -287,13 +511,14 @@ export default function Shop() {
 
   const activeFilterCount =
     selectedCategories.length + selectedBrands.length + selectedColours.length +
-    (selectedPriceRange ? 1 : 0) + (minDiscount ? 1 : 0) + (minRating ? 1 : 0) +
-    (freeShippingOnly ? 1 : 0);
+    selectedSizes.length + (selectedPriceRange ? 1 : 0) + (minDiscount ? 1 : 0) +
+    (minRating ? 1 : 0) + (freeShippingOnly ? 1 : 0);
 
   const clearAll = () => {
     setSelectedCategories([]);
     setSelectedBrands([]);
     setSelectedColours([]);
+    setSelectedSizes([]);
     setSelectedPriceRange(null);
     setMinDiscount(null);
     setMinRating(null);
@@ -334,12 +559,40 @@ export default function Shop() {
 
             {/* Category */}
             <FilterSection title="Category">
-              <div className="space-y-2 font-mono text-sm">
-                {['Keyboards', 'Audio', 'Power', 'Mice'].map(cat => (
+              <div className="space-y-3 font-mono text-sm">
+                <p className="text-xs uppercase tracking-widest font-bold text-gray-400">Clothing</p>
+                {CATEGORIES_CLOTHING.map(cat => (
                   <label key={cat} className="flex items-center gap-3 cursor-pointer group">
                     <input type="checkbox" checked={selectedCategories.includes(cat)} onChange={() => toggle(selectedCategories, setSelectedCategories, cat)} className={checkboxClass} />
                     <span className="group-hover:text-electric-pink transition-colors">{cat}</span>
                   </label>
+                ))}
+                <p className="text-xs uppercase tracking-widest font-bold text-gray-400 pt-2">Tech</p>
+                {CATEGORIES_TECH.map(cat => (
+                  <label key={cat} className="flex items-center gap-3 cursor-pointer group">
+                    <input type="checkbox" checked={selectedCategories.includes(cat)} onChange={() => toggle(selectedCategories, setSelectedCategories, cat)} className={checkboxClass} />
+                    <span className="group-hover:text-electric-pink transition-colors">{cat}</span>
+                  </label>
+                ))}
+              </div>
+            </FilterSection>
+
+            {/* Size (clothing) */}
+            <FilterSection title="Size" defaultOpen={false}>
+              <div className="flex flex-wrap gap-2">
+                {SIZES.map(s => (
+                  <button
+                    key={s}
+                    onClick={() => toggle(selectedSizes, setSelectedSizes, s)}
+                    className={`px-3 py-1.5 font-mono text-xs font-bold border-2 transition-all ${
+                      selectedSizes.includes(s)
+                        ? 'bg-black text-white border-black'
+                        : 'bg-white text-black border-black hover:bg-surface-container'
+                    }`}
+                    aria-pressed={selectedSizes.includes(s)}
+                  >
+                    {s}
+                  </button>
                 ))}
               </div>
             </FilterSection>
@@ -472,7 +725,7 @@ export default function Shop() {
         <div className="mb-8 border-b-2 border-black pb-6 flex flex-col md:flex-row justify-between items-end gap-4">
           <div>
             <h1 className="font-headline text-[48px] md:text-[64px] font-black uppercase text-black break-words leading-[0.9]">
-              Tech<br />Essentials
+              All<br />Products
             </h1>
             <p className="font-mono text-sm mt-2 text-gray-600">
               {filteredProducts.length} result{filteredProducts.length !== 1 ? 's' : ''}
