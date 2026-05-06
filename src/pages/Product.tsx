@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ShoppingBag, ChevronDown, ArrowLeft, Star } from 'lucide-react';
 import { getProductById, ALL_PRODUCTS } from '../data/products';
 
