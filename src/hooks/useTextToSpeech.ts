@@ -8,8 +8,8 @@ export interface TextToSpeechOptions {
 }
 
 export function useTextToSpeech(options: TextToSpeechOptions = {}) {
-  const { voiceId = 'UgBBYS2sOqTuMpoF3BR0' } = options;
-  
+  const { voiceId = 'JBFqnCBsd6RMkjVDRZzb' } = options;
+
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
