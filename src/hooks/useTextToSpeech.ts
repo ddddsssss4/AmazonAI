@@ -1,14 +1,13 @@
 import { useState, useRef, useCallback } from 'react';
 
-const API_KEY = import.meta.env.VITE_ELEVENLABS_API_KEY;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
 export interface TextToSpeechOptions {
-  voiceId?: string; // Default voice ID from ElevenLabs
-  model?: string; // 'eleven_monolingual_v1', 'eleven_multilingual_v1', 'eleven_turbo_v2', etc.
+  voiceId?: string; // Voice ID from ElevenLabs
 }
 
 export function useTextToSpeech(options: TextToSpeechOptions = {}) {
-  const { voiceId = 'JBFqnCBsd6RMkjVtLZvb', model = 'eleven_turbo_v2_5' } = options;
+  const { voiceId = 'cgSgspJ2msn5ssLCgxWa' } = options;
   
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,23 +20,19 @@ export function useTextToSpeech(options: TextToSpeechOptions = {}) {
         setError(null);
         setIsLoading(true);
 
-        console.log('[v0] TTS request for:', text);
+        console.log('[v0] TTS request via backend:', text.substring(0, 50) + '...');
 
+        // Call backend TTS endpoint
         const response = await fetch(
-          `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+          `${BACKEND_URL}/api/elevenlabs/tts`,
           {
             method: 'POST',
             headers: {
-              'xi-api-key': API_KEY,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
               text,
-              model_id: model,
-              voice_settings: {
-                stability: 0.5,
-                similarity_boost: 0.75,
-              },
+              voiceId,
             }),
           }
         );
@@ -45,7 +40,7 @@ export function useTextToSpeech(options: TextToSpeechOptions = {}) {
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(
-            `TTS error: ${errorData.detail?.message || response.statusText}`
+            `TTS error: ${errorData.error || response.statusText}`
           );
         }
 
@@ -58,10 +53,14 @@ export function useTextToSpeech(options: TextToSpeechOptions = {}) {
 
         audioRef.current.src = audioUrl;
         audioRef.current.onplay = () => setIsSpeaking(true);
-        audioRef.current.onended = () => setIsSpeaking(false);
+        audioRef.current.onended = () => {
+          setIsSpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+        };
         audioRef.current.onerror = () => {
           setError('Failed to play audio');
           setIsSpeaking(false);
+          URL.revokeObjectURL(audioUrl);
         };
 
         await audioRef.current.play();
@@ -73,7 +72,7 @@ export function useTextToSpeech(options: TextToSpeechOptions = {}) {
         console.error('[v0] TTS error:', err);
       }
     },
-    [voiceId, model]
+    [voiceId]
   );
 
   const stop = useCallback(() => {

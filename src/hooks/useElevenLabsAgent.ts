@@ -7,8 +7,8 @@ export interface ParsedFilters {
   color?: string;
 }
 
-const API_KEY = import.meta.env.VITE_ELEVENLABS_API_KEY;
-const AGENT_ID = import.meta.env.VITE_ELEVENLABS_AGENT_ID;
+// Backend server is running on port 3001
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
 export function useElevenLabsAgent() {
   const [isListening, setIsListening] = useState(false);
@@ -64,7 +64,23 @@ export function useElevenLabsAgent() {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         console.log('[v0] Audio blob created:', audioBlob.size, 'bytes');
 
-        // Convert audio to base64
+        // Get signed URL from backend
+        const signedUrlResponse = await fetch(`${BACKEND_URL}/api/elevenlabs/signed-url`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!signedUrlResponse.ok) {
+          const errorData = await signedUrlResponse.json();
+          throw new Error(`Failed to get signed URL: ${errorData.error}`);
+        }
+
+        const { signedUrl } = await signedUrlResponse.json();
+        console.log('[v0] Signed URL received from backend');
+
+        // Convert audio to base64 for transmission
         const reader = new FileReader();
         reader.readAsDataURL(audioBlob);
 
@@ -72,32 +88,29 @@ export function useElevenLabsAgent() {
           try {
             const base64Audio = (reader.result as string).split(',')[1];
 
-            // Call ElevenLabs Conversational API
-            const response = await fetch('https://api.elevenlabs.io/v1/conversational/message', {
+            // Call ElevenLabs Conversational API with signed URL
+            // The signed URL already includes authentication
+            const conversationResponse = await fetch(signedUrl, {
               method: 'POST',
               headers: {
-                'xi-api-key': API_KEY,
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                agent_id: AGENT_ID,
-                message: base64Audio,
+                audio: base64Audio,
                 mode: 'speech',
               }),
             });
 
-            if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(
-                `API error: ${errorData.message || response.statusText}`
-              );
+            if (!conversationResponse.ok) {
+              const errorData = await conversationResponse.text();
+              throw new Error(`ElevenLabs API error: ${errorData}`);
             }
 
-            const data = await response.json();
+            const data = await conversationResponse.json();
             console.log('[v0] Agent response:', data);
 
             // Parse the agent response to extract filters
-            const filters = parseAgentResponse(data.text || data.message);
+            const filters = parseAgentResponse(data.text || data.message || '');
             if (onFiltersDetected) {
               onFiltersDetected(filters);
             }
