@@ -1,12 +1,62 @@
 import { Search, ShoppingCart, Heart, ArrowLeft, ArrowRight, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import VoiceFilterButton from '../components/VoiceFilterButton';
+import ProductHoverSpeaker from '../components/ProductHoverSpeaker';
+import { type ParsedFilters } from '../hooks/useElevenLabsAgent';
 
 export default function Shop() {
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['Keyboards', 'Audio', 'Power']);
+  const [selectedPriceRange, setSelectedPriceRange] = useState<string | null>(null);
+  const [voiceFiltersApplied, setVoiceFiltersApplied] = useState<string>('');
+
+  const handleVoiceFilters = (filters: ParsedFilters) => {
+    console.log('[v0] Voice filters detected:', filters);
+    
+    // Apply category filters
+    if (filters.category && filters.category.length > 0) {
+      setSelectedCategories(filters.category);
+      setVoiceFiltersApplied(`Category: ${filters.category.join(', ')}`);
+    }
+
+    // Apply price range filters
+    if (filters.priceRange) {
+      setSelectedPriceRange(filters.priceRange);
+      setVoiceFiltersApplied(prev => prev ? `${prev} • Price: ${filters.priceRange}` : `Price: ${filters.priceRange}`);
+    }
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+    setVoiceFiltersApplied('');
+  };
+
+  const handlePriceChange = (range: string | null) => {
+    setSelectedPriceRange(range);
+    setVoiceFiltersApplied('');
+  };
+
   return (
     <main className="flex-grow w-full max-w-[1600px] mx-auto px-6 py-12 flex flex-col md:flex-row gap-8 relative">
       {/* Sidebar / Filters */}
       <aside className="w-full md:w-1/4 lg:w-1/5 shrink-0 space-y-6">
         <div className="sticky top-24">
+          {/* Voice Filter Section */}
+          <div className="bg-white neo-border neo-shadow p-6 mb-6">
+            <h2 className="font-headline text-xl font-black uppercase mb-4 pb-2 border-b-2 border-black">AI Voice</h2>
+            <VoiceFilterButton onFiltersDetected={handleVoiceFilters} />
+            {voiceFiltersApplied && (
+              <div className="mt-3 bg-electric-pink bg-opacity-10 border-2 border-electric-pink p-3 font-mono text-xs text-black rounded">
+                ✓ {voiceFiltersApplied}
+              </div>
+            )}
+          </div>
+
+          {/* Manual Filters Section */}
           <div className="bg-white neo-border neo-shadow p-6 mb-6">
             <h2 className="font-headline text-2xl font-black uppercase mb-4 pb-2 border-b-2 border-black">Filters</h2>
             <div className="space-y-6">
@@ -14,40 +64,38 @@ export default function Shop() {
               <div>
                 <h3 className="font-mono font-bold mb-3 uppercase tracking-wider text-sm">Category</h3>
                 <div className="space-y-3 font-mono text-sm">
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" defaultChecked className="w-5 h-5 border-2 border-black rounded-none checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0" />
-                    <span className="group-hover:text-electric-pink transition-colors">Keyboards</span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" defaultChecked className="w-5 h-5 border-2 border-black rounded-none checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0" />
-                    <span className="group-hover:text-electric-pink transition-colors">Audio</span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" defaultChecked className="w-5 h-5 border-2 border-black rounded-none checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0" />
-                    <span className="group-hover:text-electric-pink transition-colors">Power</span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" defaultChecked className="w-5 h-5 border-2 border-black rounded-none checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0" />
-                    <span className="group-hover:text-electric-pink transition-colors">Mice</span>
-                  </label>
+                  {['Keyboards', 'Audio', 'Power', 'Mice'].map(category => (
+                    <label key={category} className="flex items-center gap-3 cursor-pointer group">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedCategories.includes(category)}
+                        onChange={() => handleCategoryChange(category)}
+                        className="w-5 h-5 border-2 border-black rounded-none checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0" 
+                      />
+                      <span className="group-hover:text-electric-pink transition-colors">{category}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
               {/* Price Filter */}
               <div>
                 <h3 className="font-mono font-bold mb-3 uppercase tracking-wider text-sm pt-4 border-t-2 border-black">Price Range</h3>
                 <div className="space-y-3 font-mono text-sm">
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" className="w-5 h-5 border-2 border-black rounded-none checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0" />
-                    <span className="group-hover:text-electric-pink transition-colors">Under $50</span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" className="w-5 h-5 border-2 border-black rounded-none checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0" />
-                    <span className="group-hover:text-electric-pink transition-colors">$50 - $150</span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" className="w-5 h-5 border-2 border-black rounded-none checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0" />
-                    <span className="group-hover:text-electric-pink transition-colors">$150+</span>
-                  </label>
+                  {[
+                    { label: 'Under $50', value: '0-50' },
+                    { label: '$50 - $150', value: '50-150' },
+                    { label: '$150+', value: '150-999' }
+                  ].map(range => (
+                    <label key={range.value} className="flex items-center gap-3 cursor-pointer group">
+                      <input 
+                        type="checkbox"
+                        checked={selectedPriceRange === range.value}
+                        onChange={() => handlePriceChange(selectedPriceRange === range.value ? null : range.value)}
+                        className="w-5 h-5 border-2 border-black rounded-none checked:bg-black checked:border-black focus:ring-0 focus:ring-offset-0" 
+                      />
+                      <span className="group-hover:text-electric-pink transition-colors">{range.label}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
             </div>
@@ -85,14 +133,20 @@ export default function Shop() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Product 1 */}
           <article className="bg-white neo-border neo-shadow flex flex-col h-full group transition-all duration-200 hover:-translate-y-1 hover:neo-shadow-lg">
-            <Link to="/product" className="contents">
-              <div className="relative w-full aspect-square border-b-2 border-black bg-surface-container overflow-hidden p-4 flex items-center justify-center">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8biZLVpkCJJRjqCxt_aWWSt7WvHN_QZTvMmuxfwtZ1RKNTb8pp_ZnF3N76Xtde45vuyX-CJt2ulU--w9lBPHGku0RkT3SP8eTZqXmBXEaLl1qj8gNSHYxV3-FTqAhKhDqOKVSisMll-vAUQE53L1O7ASWyMHZM_RHsrguBWcls1G0njZ16jw1BqNDrTqpMBHqQJN1DwMagkp4bl1Kb-pFJZ3IQj6JBk5M9eDfwsYD3KKuMxNJW_RSGhUqqQiLb342oSs9ellv_0D3" alt="Tactile Pro Keyboard" className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" />
-                <div className="absolute top-4 left-4 bg-black text-white px-3 py-1 font-mono text-xs uppercase font-bold border-2 border-black flex items-center gap-2">
-                  New
+            <ProductHoverSpeaker
+              productName="Tactile Pro Keyboard"
+              productDescription="Heavy-duty mechanical switches housed in a reinforced aluminum chassis. Built for high APM execution."
+              productPrice={189}
+            >
+              <Link to="/product" className="contents">
+                <div className="relative w-full aspect-square border-b-2 border-black bg-surface-container overflow-hidden p-4 flex items-center justify-center">
+                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8biZLVpkCJJRjqCxt_aWWSt7WvHN_QZTvMmuxfwtZ1RKNTb8pp_ZnF3N76Xtde45vuyX-CJt2ulU--w9lBPHGku0RkT3SP8eTZqXmBXEaLl1qj8gNSHYxV3-FTqAhKhDqOKVSisMll-vAUQE53L1O7ASWyMHZM_RHsrguBWcls1G0njZ16jw1BqNDrTqpMBHqQJN1DwMagkp4bl1Kb-pFJZ3IQj6JBk5M9eDfwsYD3KKuMxNJW_RSGhUqqQiLb342oSs9ellv_0D3" alt="Tactile Pro Keyboard" className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" />
+                  <div className="absolute top-4 left-4 bg-black text-white px-3 py-1 font-mono text-xs uppercase font-bold border-2 border-black flex items-center gap-2">
+                    New
+                  </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </ProductHoverSpeaker>
             <div className="p-6 flex flex-col flex-grow">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="font-headline text-2xl leading-tight uppercase font-black">Tactile Pro<br />Keyboard</h3>
@@ -112,11 +166,17 @@ export default function Shop() {
 
           {/* Product 2 */}
           <article className="bg-white neo-border neo-shadow flex flex-col h-full group transition-all duration-200 hover:-translate-y-1 hover:neo-shadow-lg">
-            <Link to="/product" className="contents">
-              <div className="relative w-full aspect-square border-b-2 border-black bg-surface-container overflow-hidden p-4 flex items-center justify-center">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdSgcGAykcJiDJwYORA3S0fBoPn08FCuHb2EDwrIL96dVEdPlQB0I-r9Zj0TN7BTwP4q-vQn_ttFZu9cDGGLdBfkXHC2Jzp3VuyCd-xwp8c7V_Ayr29YsRvQl4sMhUjS84F2kKftfFS7YlgXLsKn598PQz_YlKLrpqCxCSrMPFfm6kEZ65rZZTwb9iwN3-SxABXEJOF4FRwa0Acnf8bmmefQPdPKpW6ruQGglcPN9fJ3o88Q-Ea4cruhysGqkbQBvywGERSda1jS3l" alt="Acoustic Isolation Over-Ear" className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" />
-              </div>
-            </Link>
+            <ProductHoverSpeaker
+              productName="Acoustic Isolation Over-Ear"
+              productDescription="Studio-grade drivers with absolute noise gating. For complete environmental detachment."
+              productPrice={240}
+            >
+              <Link to="/product" className="contents">
+                <div className="relative w-full aspect-square border-b-2 border-black bg-surface-container overflow-hidden p-4 flex items-center justify-center">
+                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdSgcGAykcJiDJwYORA3S0fBoPn08FCuHb2EDwrIL96dVEdPlQB0I-r9Zj0TN7BTwP4q-vQn_ttFZu9cDGGLdBfkXHC2Jzp3VuyCd-xwp8c7V_Ayr29YsRvQl4sMhUjS84F2kKftfFS7YlgXLsKn598PQz_YlKLrpqCxCSrMPFfm6kEZ65rZZTwb9iwN3-SxABXEJOF4FRwa0Acnf8bmmefQPdPKpW6ruQGglcPN9fJ3o88Q-Ea4cruhysGqkbQBvywGERSda1jS3l" alt="Acoustic Isolation Over-Ear" className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" />
+                </div>
+              </Link>
+            </ProductHoverSpeaker>
             <div className="p-6 flex flex-col flex-grow">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="font-headline text-2xl leading-tight uppercase font-black">Acoustic Isolation<br />Over-Ear</h3>
@@ -136,11 +196,17 @@ export default function Shop() {
           
           {/* Product 3 */}
           <article className="bg-white neo-border neo-shadow flex flex-col h-full group transition-all duration-200 hover:-translate-y-1 hover:neo-shadow-lg">
-            <Link to="/product" className="contents">
-              <div className="relative w-full aspect-square border-b-2 border-black bg-surface-container overflow-hidden flex items-center justify-center">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDARHQ5UueYxJBVVQlnB51PdhzWlKkicUAFtNvVa7N60HZ23FipCqVXkE_9j4d7uu4aNSgpnP4q6wqQPR4Od8g6Hzg5EMH4ieqbw04rOpswRdhIOHSkuaRZ1wO1ihacP95VK49IjczyUqKePNL67_b-ic3SN-oVoRxcV67GS3j7-VDahpWB1hfKdRovPZ9VGBNSfte69riMEHyMV43LIUPnbQ1RUzG9mROGAbv1a6mZHaXv4queKKAvdcoBou_EdEFNgB9BvA4cCA4x" alt="Qi Ceramic Station" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              </div>
-            </Link>
+            <ProductHoverSpeaker
+              productName="Qi Ceramic Station"
+              productDescription="High-density ceramic power slab. 15W rapid energy transfer with brutalist stability."
+              productPrice={65}
+            >
+              <Link to="/product" className="contents">
+                <div className="relative w-full aspect-square border-b-2 border-black bg-surface-container overflow-hidden flex items-center justify-center">
+                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDARHQ5UueYxJBVVQlnB51PdhzWlKkicUAFtNvVa7N60HZ23FipCqVXkE_9j4d7uu4aNSgpnP4q6wqQPR4Od8g6Hzg5EMH4ieqbw04rOpswRdhIOHSkuaRZ1wO1ihacP95VK49IjczyUqKePNL67_b-ic3SN-oVoRxcV67GS3j7-VDahpWB1hfKdRovPZ9VGBNSfte69riMEHyMV43LIUPnbQ1RUzG9mROGAbv1a6mZHaXv4queKKAvdcoBou_EdEFNgB9BvA4cCA4x" alt="Qi Ceramic Station" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+              </Link>
+            </ProductHoverSpeaker>
             <div className="p-6 flex flex-col flex-grow">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="font-headline text-2xl leading-tight uppercase font-black">Qi Ceramic<br />Station</h3>
