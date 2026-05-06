@@ -1,6 +1,18 @@
 import express from 'express';
 import cors from 'cors';
 import crypto from 'crypto';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Load .env from server directory first, then fallback to project root
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Try server/.env first
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+// Then try project root .env (will only load vars not already set)
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const app = express();
 const PORT = 3001;
