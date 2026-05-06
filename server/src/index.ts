@@ -81,7 +81,7 @@ app.post('/api/elevenlabs/signed-url', async (req, res) => {
 // Text-to-speech endpoint
 app.post('/api/elevenlabs/tts', async (req, res) => {
   try {
-    const { text, voiceId = 'Rachel' } = req.body;
+    const { text, voiceId = '21m00Tcm4TlvDq8ikWAM' } = req.body;
 
     if (!text) {
       return res.status(400).json({ error: 'Text is required' });
