@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 
 // ── Horizontal scroll carousel ──────────────────────────────────────────────
 interface CarouselItem {
+  id: number;
   img: string;
   label: string;
 }
@@ -27,10 +28,10 @@ function HorizontalCarousel({ items }: { items: CarouselItem[] }) {
         className="flex gap-4 overflow-x-auto scrollbar-hide pb-2"
         style={{ scrollbarWidth: 'none' }}
       >
-        {items.map((item, i) => (
+        {items.map((item) => (
           <Link
-            to="/shop"
-            key={i}
+            to={`/product/${item.id}`}
+            key={item.id}
             className="flex-none w-36 flex flex-col gap-2 group/item"
           >
             <div className="w-36 h-36 neo-border neo-shadow overflow-hidden bg-surface-container flex-none">
@@ -57,6 +58,7 @@ function HorizontalCarousel({ items }: { items: CarouselItem[] }) {
 
 // ── Deal Collection Card (with internal prev/next) ───────────────────────────
 interface DealProduct {
+  id: number;
   img: string;
   name: string;
   price: string;
@@ -89,8 +91,8 @@ function DealCollection({ title, subtitle, products, accentColor = 'bg-black' }:
       <div className="flex-grow grid grid-cols-2 gap-0 relative">
         {visible.map((p, i) => (
           <Link
-            to="/shop"
-            key={i}
+            to={`/product/${p.id}`}
+            key={p.id}
             className={`flex flex-col gap-2 p-3 hover:bg-surface-container transition-colors ${i === 0 ? 'border-r-2 border-black' : ''} border-b-2 border-black`}
           >
             <div className="w-full aspect-square overflow-hidden bg-surface-container">
@@ -134,52 +136,52 @@ function DealCollection({ title, subtitle, products, accentColor = 'bg-black' }:
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 const LIGHTING_ITEMS: CarouselItem[] = [
-  { img: '/home/lamp-crystal-globe.jpg', label: 'Crystal Globe Lamp' },
-  { img: '/home/lamp-galaxy-night.jpg', label: 'Galaxy Night Light' },
-  { img: '/home/lamp-floral-mood.jpg', label: 'Floral Mood Lamp' },
-  { img: '/home/lamp-clip-reading.jpg', label: 'Clip Reading Light' },
-  { img: '/home/lamp-smart-plug-night.jpg', label: 'Smart Plug-In Nightlight' },
-  { img: '/home/lamp-sensor-wall.jpg', label: 'Sensor Wall Light' },
-  { img: '/home/lamp-warm-glow-strip.jpg', label: 'Warm Glow Strip' },
-  { img: '/home/lamp-nordic-table.jpg', label: 'Nordic Table Lamp' },
+  { id: 28, img: '/home/lamp-crystal-globe.jpg', label: 'Crystal Globe Lamp' },
+  { id: 29, img: '/home/lamp-galaxy-night.jpg', label: 'Galaxy Night Light' },
+  { id: 30, img: '/home/lamp-floral-mood.jpg', label: 'Floral Mood Lamp' },
+  { id: 31, img: '/home/lamp-clip-reading.jpg', label: 'Clip Reading Light' },
+  { id: 32, img: '/home/lamp-smart-plug-night.jpg', label: 'Smart Plug-In Nightlight' },
+  { id: 33, img: '/home/lamp-sensor-wall.jpg', label: 'Sensor Wall Light' },
+  { id: 34, img: '/home/lamp-warm-glow-strip.jpg', label: 'Warm Glow Strip' },
+  { id: 35, img: '/home/lamp-nordic-table.jpg', label: 'Nordic Table Lamp' },
 ];
 
 const KITCHEN_ITEMS: CarouselItem[] = [
-  { img: '/home/kitchen-chef-knife.jpg', label: 'Chef Knife Set' },
-  { img: '/home/kitchen-chopping-bowls.jpg', label: 'Colourful Chopping Bowls' },
-  { img: '/home/kitchen-ceramic-mug.jpg', label: 'Ceramic Mug' },
-  { img: '/home/kitchen-lunch-thermos.jpg', label: 'Lunch Thermos Flask' },
-  { img: '/home/kitchen-spice-jar.jpg', label: 'Storage Spice Jar' },
-  { img: '/home/kitchen-scale.jpg', label: 'Precision Kitchen Scale' },
-  { img: '/home/kitchen-travel-case.jpg', label: 'Travel Makeup Case' },
+  { id: 36, img: '/home/kitchen-chef-knife.jpg', label: 'Chef Knife Set' },
+  { id: 37, img: '/home/kitchen-chopping-bowls.jpg', label: 'Colourful Chopping Bowls' },
+  { id: 38, img: '/home/kitchen-ceramic-mug.jpg', label: 'Ceramic Mug' },
+  { id: 39, img: '/home/kitchen-lunch-thermos.jpg', label: 'Lunch Thermos Flask' },
+  { id: 40, img: '/home/kitchen-spice-jar.jpg', label: 'Storage Spice Jar' },
+  { id: 41, img: '/home/kitchen-scale.jpg', label: 'Precision Kitchen Scale' },
+  { id: 42, img: '/home/kitchen-travel-case.jpg', label: 'Travel Makeup Case' },
 ];
 
 const SMALL_BIZ_PRODUCTS: DealProduct[] = [
-  { img: '/home/deal-wood-study-table.jpg', name: 'Engineered Wood Study & Office Table 120x60x75cm', price: '₹6,080', originalPrice: '₹13,000' },
-  { img: '/home/deal-bamboo-nightstand.jpg', name: 'Bamboo Bedside Nightstand with Drawer', price: '₹3,499', originalPrice: '₹7,200' },
-  { img: '/home/deal-floating-shelf.jpg', name: 'Minimalist Floating Wall Shelf Set of 3', price: '₹1,299', originalPrice: '₹2,800' },
-  { img: '/home/deal-rattan-basket.jpg', name: 'Rattan Storage Basket with Lid', price: '₹899', originalPrice: '₹1,600' },
+  { id: 43, img: '/home/deal-wood-study-table.jpg', name: 'Engineered Wood Study & Office Table 120x60x75cm', price: '₹6,080', originalPrice: '₹13,000' },
+  { id: 44, img: '/home/deal-bamboo-nightstand.jpg', name: 'Bamboo Bedside Nightstand with Drawer', price: '₹3,499', originalPrice: '₹7,200' },
+  { id: 45, img: '/home/deal-floating-shelf.jpg', name: 'Minimalist Floating Wall Shelf Set of 3', price: '₹1,299', originalPrice: '₹2,800' },
+  { id: 46, img: '/home/deal-rattan-basket.jpg', name: 'Rattan Storage Basket with Lid', price: '₹899', originalPrice: '₹1,600' },
 ];
 
 const WOMEN_KITCHEN_PRODUCTS: DealProduct[] = [
-  { img: '/home/deal-fridge-organizer.jpg', name: 'hapo Refrigerator Organizer 6 Grid Compartments 1200ML', price: '₹263', originalPrice: '₹1,200' },
-  { img: '/home/deal-steel-lunchbox.jpg', name: 'Stainless Steel Lunch Box 3 Tier Tiffin', price: '₹449', originalPrice: '₹999' },
-  { img: '/home/deal-glass-bottle.jpg', name: 'Borosilicate Glass Water Bottle 1L with Sleeve', price: '₹349', originalPrice: '₹799' },
-  { img: '/home/deal-cookware-set.jpg', name: 'Non-stick Granite Cookware Set 5-Piece', price: '₹2,199', originalPrice: '₹5,499' },
+  { id: 47, img: '/home/deal-fridge-organizer.jpg', name: 'hapo Refrigerator Organizer 6 Grid Compartments 1200ML', price: '₹263', originalPrice: '₹1,200' },
+  { id: 48, img: '/home/deal-steel-lunchbox.jpg', name: 'Stainless Steel Lunch Box 3 Tier Tiffin', price: '₹449', originalPrice: '₹999' },
+  { id: 49, img: '/home/deal-glass-bottle.jpg', name: 'Borosilicate Glass Water Bottle 1L with Sleeve', price: '₹349', originalPrice: '₹799' },
+  { id: 50, img: '/home/deal-cookware-set.jpg', name: 'Non-stick Granite Cookware Set 5-Piece', price: '₹2,199', originalPrice: '₹5,499' },
 ];
 
 const BEST_SELLERS_KITCHEN: DealProduct[] = [
-  { img: '/home/deal-vacuum-sealer-bags.jpg', name: 'Vacuum Sealer Bags Rolls 5-Pack Food Saver', price: '₹599', originalPrice: '₹1,200' },
-  { img: '/home/deal-nutribullet-blender.jpg', name: 'NutriBullet Pro 900W Personal Blender', price: '₹4,999', originalPrice: '₹8,500' },
-  { img: '/home/deal-kitchen-scale-digital.jpg', name: 'Digital Kitchen Scale 5kg with Tare Function', price: '₹349', originalPrice: '₹699' },
-  { img: '/home/deal-meat-thermometer.jpg', name: 'Instant Read Meat Thermometer Waterproof', price: '₹799', originalPrice: '₹1,499' },
+  { id: 47, img: '/home/deal-vacuum-sealer-bags.jpg', name: 'Vacuum Sealer Bags Rolls 5-Pack Food Saver', price: '₹599', originalPrice: '₹1,200' },
+  { id: 48, img: '/home/deal-nutribullet-blender.jpg', name: 'NutriBullet Pro 900W Personal Blender', price: '₹4,999', originalPrice: '₹8,500' },
+  { id: 41, img: '/home/deal-kitchen-scale-digital.jpg', name: 'Digital Kitchen Scale 5kg with Tare Function', price: '₹349', originalPrice: '₹699' },
+  { id: 39, img: '/home/deal-meat-thermometer.jpg', name: 'Instant Read Meat Thermometer Waterproof', price: '₹799', originalPrice: '₹1,499' },
 ];
 
 const CURATED_COLLECTIONS: DealProduct[] = [
-  { img: '/home/deal-rocking-chair-cushion.jpg', name: 'DADDY COOL Multipurpose Extra Long Rocking Chair Cushion', price: '₹739', originalPrice: '₹1,299' },
-  { img: '/home/deal-outdoor-hammock.jpg', name: 'Outdoor Waterproof Hammock with Steel Stand', price: '₹3,299', originalPrice: '₹6,499' },
-  { img: '/home/deal-solar-pathway-lights.jpg', name: 'Garden Solar Pathway Lights Set of 12', price: '₹1,199', originalPrice: '₹2,800' },
-  { img: '/home/deal-camping-chair.jpg', name: 'Foldable Camping Chair with Side Pocket', price: '₹999', originalPrice: '₹1,999' },
+  { id: 46, img: '/home/deal-rocking-chair-cushion.jpg', name: 'DADDY COOL Multipurpose Extra Long Rocking Chair Cushion', price: '₹739', originalPrice: '₹1,299' },
+  { id: 45, img: '/home/deal-outdoor-hammock.jpg', name: 'Outdoor Waterproof Hammock with Steel Stand', price: '₹3,299', originalPrice: '₹6,499' },
+  { id: 34, img: '/home/deal-solar-pathway-lights.jpg', name: 'Garden Solar Pathway Lights Set of 12', price: '₹1,199', originalPrice: '₹2,800' },
+  { id: 44, img: '/home/deal-camping-chair.jpg', name: 'Foldable Camping Chair with Side Pocket', price: '₹999', originalPrice: '₹1,999' },
 ];
 
 // ── Page ──────────────────────────────────────────────────────────────────────
