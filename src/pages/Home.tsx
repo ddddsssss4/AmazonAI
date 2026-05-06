@@ -134,52 +134,52 @@ function DealCollection({ title, subtitle, products, accentColor = 'bg-black' }:
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 const LIGHTING_ITEMS: CarouselItem[] = [
-  { img: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&q=80', label: 'Crystal Globe Lamp' },
-  { img: 'https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?w=300&q=80', label: 'Galaxy Night Light' },
-  { img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80', label: 'Floral Mood Lamp' },
-  { img: 'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=300&q=80', label: 'Clip Reading Light' },
-  { img: 'https://images.unsplash.com/photo-1513506003901-1e6a35073a57?w=300&q=80', label: 'Smart Plug-In Nightlight' },
-  { img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&q=80', label: 'Sensor Wall Light' },
-  { img: 'https://images.unsplash.com/photo-1540574163026-643ea20ade25?w=300&q=80', label: 'Warm Glow Strip' },
-  { img: 'https://images.unsplash.com/photo-1567538096621-38d2284b23ff?w=300&q=80', label: 'Nordic Table Lamp' },
+  { img: '/home/lamp-crystal-globe.jpg', label: 'Crystal Globe Lamp' },
+  { img: '/home/lamp-galaxy-night.jpg', label: 'Galaxy Night Light' },
+  { img: '/home/lamp-floral-mood.jpg', label: 'Floral Mood Lamp' },
+  { img: '/home/lamp-clip-reading.jpg', label: 'Clip Reading Light' },
+  { img: '/home/lamp-smart-plug-night.jpg', label: 'Smart Plug-In Nightlight' },
+  { img: '/home/lamp-sensor-wall.jpg', label: 'Sensor Wall Light' },
+  { img: '/home/lamp-warm-glow-strip.jpg', label: 'Warm Glow Strip' },
+  { img: '/home/lamp-nordic-table.jpg', label: 'Nordic Table Lamp' },
 ];
 
 const KITCHEN_ITEMS: CarouselItem[] = [
-  { img: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&q=80', label: 'Chef Knife Set' },
-  { img: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=300&q=80', label: 'Colourful Chopping Bowls' },
-  { img: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=300&q=80', label: 'Ceramic Mug' },
-  { img: 'https://images.unsplash.com/photo-1585837575652-267e041d8a9e?w=300&q=80', label: 'Lunch Thermos Flask' },
-  { img: 'https://images.unsplash.com/photo-1585664811087-47f65abbad64?w=300&q=80', label: 'Storage Spice Jar' },
-  { img: 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=300&q=80', label: 'Precision Kitchen Scale' },
-  { img: 'https://images.unsplash.com/photo-1461354464878-ad92f492a5a0?w=300&q=80', label: 'Travel Makeup Case' },
+  { img: '/home/kitchen-chef-knife.jpg', label: 'Chef Knife Set' },
+  { img: '/home/kitchen-chopping-bowls.jpg', label: 'Colourful Chopping Bowls' },
+  { img: '/home/kitchen-ceramic-mug.jpg', label: 'Ceramic Mug' },
+  { img: '/home/kitchen-lunch-thermos.jpg', label: 'Lunch Thermos Flask' },
+  { img: '/home/kitchen-spice-jar.jpg', label: 'Storage Spice Jar' },
+  { img: '/home/kitchen-scale.jpg', label: 'Precision Kitchen Scale' },
+  { img: '/home/kitchen-travel-case.jpg', label: 'Travel Makeup Case' },
 ];
 
 const SMALL_BIZ_PRODUCTS: DealProduct[] = [
-  { img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&q=80', name: 'Engineered Wood Study & Office Table 120x60x75cm', price: '₹6,080', originalPrice: '₹13,000' },
-  { img: 'https://images.unsplash.com/photo-1567538096621-38d2284b23ff?w=300&q=80', name: 'Bamboo Bedside Nightstand with Drawer', price: '₹3,499', originalPrice: '₹7,200' },
-  { img: 'https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?w=300&q=80', name: 'Minimalist Floating Wall Shelf Set of 3', price: '₹1,299', originalPrice: '₹2,800' },
-  { img: 'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=300&q=80', name: 'Rattan Storage Basket with Lid', price: '₹899', originalPrice: '₹1,600' },
+  { img: '/home/deal-wood-study-table.jpg', name: 'Engineered Wood Study & Office Table 120x60x75cm', price: '₹6,080', originalPrice: '₹13,000' },
+  { img: '/home/deal-bamboo-nightstand.jpg', name: 'Bamboo Bedside Nightstand with Drawer', price: '₹3,499', originalPrice: '₹7,200' },
+  { img: '/home/deal-floating-shelf.jpg', name: 'Minimalist Floating Wall Shelf Set of 3', price: '₹1,299', originalPrice: '₹2,800' },
+  { img: '/home/deal-rattan-basket.jpg', name: 'Rattan Storage Basket with Lid', price: '₹899', originalPrice: '₹1,600' },
 ];
 
 const WOMEN_KITCHEN_PRODUCTS: DealProduct[] = [
-  { img: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=300&q=80', name: 'hapo Refrigerator Organizer 6 Grid Compartments 1200ML', price: '₹263', originalPrice: '₹1,200' },
-  { img: 'https://images.unsplash.com/photo-1585837575652-267e041d8a9e?w=300&q=80', name: 'Stainless Steel Lunch Box 3 Tier Tiffin', price: '₹449', originalPrice: '₹999' },
-  { img: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=300&q=80', name: 'Borosilicate Glass Water Bottle 1L with Sleeve', price: '₹349', originalPrice: '₹799' },
-  { img: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&q=80', name: 'Non-stick Granite Cookware Set 5-Piece', price: '₹2,199', originalPrice: '₹5,499' },
+  { img: '/home/deal-fridge-organizer.jpg', name: 'hapo Refrigerator Organizer 6 Grid Compartments 1200ML', price: '₹263', originalPrice: '₹1,200' },
+  { img: '/home/deal-steel-lunchbox.jpg', name: 'Stainless Steel Lunch Box 3 Tier Tiffin', price: '₹449', originalPrice: '₹999' },
+  { img: '/home/deal-glass-bottle.jpg', name: 'Borosilicate Glass Water Bottle 1L with Sleeve', price: '₹349', originalPrice: '₹799' },
+  { img: '/home/deal-cookware-set.jpg', name: 'Non-stick Granite Cookware Set 5-Piece', price: '₹2,199', originalPrice: '₹5,499' },
 ];
 
 const BEST_SELLERS_KITCHEN: DealProduct[] = [
-  { img: 'https://images.unsplash.com/photo-1585664811087-47f65abbad64?w=300&q=80', name: 'Vacuum Sealer Bags Rolls 5-Pack Food Saver', price: '₹599', originalPrice: '₹1,200' },
-  { img: 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=300&q=80', name: 'NutriBullet Pro 900W Personal Blender', price: '₹4,999', originalPrice: '₹8,500' },
-  { img: 'https://images.unsplash.com/photo-1461354464878-ad92f492a5a0?w=300&q=80', name: 'Digital Kitchen Scale 5kg with Tare Function', price: '₹349', originalPrice: '₹699' },
-  { img: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&q=80', name: 'Instant Read Meat Thermometer Waterproof', price: '₹799', originalPrice: '₹1,499' },
+  { img: '/home/deal-vacuum-sealer-bags.jpg', name: 'Vacuum Sealer Bags Rolls 5-Pack Food Saver', price: '₹599', originalPrice: '₹1,200' },
+  { img: '/home/deal-nutribullet-blender.jpg', name: 'NutriBullet Pro 900W Personal Blender', price: '₹4,999', originalPrice: '₹8,500' },
+  { img: '/home/deal-kitchen-scale-digital.jpg', name: 'Digital Kitchen Scale 5kg with Tare Function', price: '₹349', originalPrice: '₹699' },
+  { img: '/home/deal-meat-thermometer.jpg', name: 'Instant Read Meat Thermometer Waterproof', price: '₹799', originalPrice: '₹1,499' },
 ];
 
 const CURATED_COLLECTIONS: DealProduct[] = [
-  { img: 'https://images.unsplash.com/photo-1540574163026-643ea20ade25?w=300&q=80', name: 'DADDY COOL Multipurpose Extra Long Rocking Chair Cushion', price: '₹739', originalPrice: '₹1,299' },
-  { img: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&q=80', name: 'Outdoor Waterproof Hammock with Steel Stand', price: '₹3,299', originalPrice: '₹6,499' },
-  { img: 'https://images.unsplash.com/photo-1513506003901-1e6a35073a57?w=300&q=80', name: 'Garden Solar Pathway Lights Set of 12', price: '₹1,199', originalPrice: '₹2,800' },
-  { img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80', name: 'Foldable Camping Chair with Side Pocket', price: '₹999', originalPrice: '₹1,999' },
+  { img: '/home/deal-rocking-chair-cushion.jpg', name: 'DADDY COOL Multipurpose Extra Long Rocking Chair Cushion', price: '₹739', originalPrice: '₹1,299' },
+  { img: '/home/deal-outdoor-hammock.jpg', name: 'Outdoor Waterproof Hammock with Steel Stand', price: '₹3,299', originalPrice: '₹6,499' },
+  { img: '/home/deal-solar-pathway-lights.jpg', name: 'Garden Solar Pathway Lights Set of 12', price: '₹1,199', originalPrice: '₹2,800' },
+  { img: '/home/deal-camping-chair.jpg', name: 'Foldable Camping Chair with Side Pocket', price: '₹999', originalPrice: '₹1,999' },
 ];
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -206,7 +206,7 @@ export default function Home() {
           </div>
         </div>
         <div className="lg:col-span-7 relative h-[500px] w-full neo-border neo-shadow-lg bg-surface-container overflow-hidden group">
-          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeIF9XFbIvRRh4OXOdTdTeXS051eN0KOCM1lubY2zI2CbvaK-cgFpmxLoNvAKcWYxeMr0KhyaaeElMRX-SBPRo5ub6498mRpPafcxqTDCMYZDH_-p7vLGdPnWabL4nNldCQsIqIyQup0moFegVlITbRgifKoTB99zPdtfJLN9ESalVwAkhARGMwlJeNPHR471c708U1E5EP_GNpLYyG4igpoOku0bug-Y7ZsFnWi2v5vL8AgSYQiZMY9zC2_eBeUm0y0FIJstQOF8v" alt="Echo Studio Minimal" className="object-cover w-full h-full filter grayscale hover:grayscale-0 transition-all duration-500" />
+          <img src="/home/hero-banner.jpg" alt="Echo Studio Minimal" className="object-cover w-full h-full filter grayscale hover:grayscale-0 transition-all duration-500" />
           <div className="absolute top-4 right-4 bg-electric-pink text-white px-3 py-1 font-mono uppercase font-bold neo-border">
             New Arrival
           </div>
@@ -285,7 +285,7 @@ export default function Home() {
           <article className="bg-white neo-border neo-shadow flex flex-col group cursor-pointer relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:neo-shadow-lg">
             <Link to="/product" className="contents">
               <div className="h-64 border-b-2 border-black overflow-hidden relative p-4 bg-surface-container flex items-center justify-center">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuABdGboraAV8hzhGGRn-_ykfZbVoi--iefeU58GOLCVoTz0_251hHsrpTJEyqsY9K0-QEzEF8wmNOmt-yFSNjG50fGEsUpgsZBVXGsFFfKE2-RNdF65Ca8BX3PpZtDQyrZz-tCcaXEtNWnH1tizAJfRkAkRcsTQc6NvRe7ipshSmaYb1WtldgRQfYA50G-m028CVfi0hqrEw1dzRsAdzD8Q4YZGsP1k5O3MB6If3y_36Qsdsci4PIIXb3BfJLcOqIL8potw8Uu3wtJK" alt="Acoustic Over-Ear" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
+                <img src="/home/featured-acoustic-headphones.jpg" alt="Acoustic Over-Ear" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
               </div>
               <div className="p-4 flex flex-col gap-2 bg-white z-10 relative flex-grow">
                 <div className="flex justify-between items-start">
@@ -304,7 +304,7 @@ export default function Home() {
 
           <article className="bg-white neo-border neo-shadow flex flex-col group cursor-pointer relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:neo-shadow-lg">
             <div className="h-64 border-b-2 border-black overflow-hidden relative p-4 bg-surface-container flex items-center justify-center">
-              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCN1L-FJhHkvLcFGEy74ARSTaPPE65ohBOXtWnL1LD6kMZXa_M10w3zKNnXQEm0kGtH7VnxJSv6x1wshtI9jmq1N0H43kVTS8Yg28q45udOfODxwVVR4aeAvj6l11JBK9KYggDmWCCO-hfac-lgPv5HwN2oAEjzZwj8mlOm2uhePudUHS46Y_YXvc0vX5_9If0AvcYU1HjcX4RaYto5LCOW01V6IVXIyXnpbZxb6-SkzFXsI4ei4kN84w5rRv8RB3E9_Kbffo0YiRTn" alt="Essential Chrono" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
+              <img src="/home/featured-chrono-watch.jpg" alt="Essential Chrono" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
             </div>
             <div className="p-4 flex flex-col gap-2 bg-white z-10 relative flex-grow">
               <div className="flex justify-between items-start">
@@ -322,7 +322,7 @@ export default function Home() {
 
           <article className="bg-white neo-border neo-shadow flex flex-col group cursor-pointer relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:neo-shadow-lg">
             <div className="h-64 border-b-2 border-black overflow-hidden relative p-0 bg-surface-container flex items-center justify-center">
-              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcSHAZSMU21yRG2YHQ81hslwhKgjKh0ZWPVmHmlRek1VxsjsgCPRyBZLd2-ZI_3oICkOM0A1xsXNTOxi0bRaFNwA5Vfrj-zeQbBB38D9ssIyi7qNhh5rJ2U6tRmNCh_ckSlwmceSnNJQfj6AZZS51WwMoDizrYyvoDCEdH0Dwr5B7bGNYK3yhn3O_9Dlu-IdRfxwC3Z-2QUAMZgiYi9FXkEdXSATVwi41S21vNXPe2FTnCh55YgFB01mahbRX2GkH2JsTzOmsriPvy" alt="Morning Ceramic" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
+              <img src="/home/featured-morning-ceramic.jpg" alt="Morning Ceramic" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
               <div className="absolute top-2 left-2 bg-black text-white px-2 py-1 font-mono text-[10px] font-bold uppercase z-20">Best Seller</div>
             </div>
             <div className="p-4 flex flex-col gap-2 bg-white z-10 relative flex-grow">
@@ -341,7 +341,7 @@ export default function Home() {
 
           <article className="bg-white neo-border neo-shadow flex flex-col group cursor-pointer relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:neo-shadow-lg">
             <div className="h-64 border-b-2 border-black overflow-hidden relative p-0 bg-surface-container flex items-center justify-center">
-              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZNh8DCGXeuZErRcVS_R0_XaOSBpSR-u3wgdht_Db9rhrLxpYK0fcZ9unW_3tWDJEJkX99X-QRG0rbvWIV-9UMJkOAtQdzZCLJbYrOJjLE6ARC717_Z3sPZkuGbJLYVvA91YHDMXHJ9HvHoSORxnYLoFkOyv8MY_LDk8zKjlUJbGefgXu8iN3nUaKwGr9TjLT1zqlLiFUSHa6efqWcUI3BIKjg8WpR8Vfydn04LwGbvkrPObiEGxBZr-qgeFjJASgv62OK-3Gy_SjI" alt="Slim Folio" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
+              <img src="/home/featured-slim-folio.jpg" alt="Slim Folio" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
             </div>
             <div className="p-4 flex flex-col gap-2 bg-white z-10 relative flex-grow">
               <div className="flex justify-between items-start">
