@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+// Use relative path so Vite proxy forwards /api/* to localhost:3001
+const BACKEND_URL = '';
 
 export interface TextToSpeechOptions {
   voiceId?: string; // Voice ID from ElevenLabs

@@ -7,8 +7,8 @@ export interface ParsedFilters {
   color?: string;
 }
 
-// Backend server is running on port 3001
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+// Use relative path so Vite proxy forwards /api/* to localhost:3001
+const BACKEND_URL = '';
 
 export function useElevenLabsAgent() {
   const [isListening, setIsListening] = useState(false);
