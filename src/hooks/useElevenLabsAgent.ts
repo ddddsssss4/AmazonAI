@@ -81,7 +81,7 @@ export function useElevenLabsAgent() {
     }
   }, []);
 
-  const stopListening = useCallback(async (onFiltersDetected?: (filters: ParsedFilters) => void) => {
+  const stopListening = useCallback(async () => {
     try {
       setIsListening(false);
       if (conversationRef.current) {
