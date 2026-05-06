@@ -8,7 +8,7 @@ export interface TextToSpeechOptions {
 }
 
 export function useTextToSpeech(options: TextToSpeechOptions = {}) {
-  const { voiceId = 'cgSgspJ2msn5ssLCgxWa' } = options;
+  const { voiceId = 'UgBBYS2sOqTuMpoF3BR0' } = options;
   
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
