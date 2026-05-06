@@ -676,7 +676,6 @@ export const ALL_PRODUCTS: Product[] = [
     ],
     sustainability: 'Nappa leather tanned with plant-based tannins. Zero chrome or heavy metals used in processing.',
   },
-];
 
   // ── Lights & Lighting ──
   {
