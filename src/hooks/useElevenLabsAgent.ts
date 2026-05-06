@@ -1,29 +1,52 @@
 import { useState, useRef, useCallback } from 'react';
 import { Conversation } from '@elevenlabs/client';
+import { getProductById, ALL_PRODUCTS } from '../data/products';
 
+// ── Expanded Filter Interface ──────────────────────────────────────────────────
 export interface ParsedFilters {
-  category?: string[];
-  priceRange?: string;
-  fabric?: string;
-  color?: string;
+  categories?: string[];
+  priceMin?: number;
+  priceMax?: number;
+  brands?: string[];
+  colours?: string[];
+  freeShipping?: boolean;
+  minRating?: number;
+  minDiscount?: number;
+  sortBy?: 'price_low' | 'price_high' | 'rating' | 'discount';
+  searchQuery?: string;
 }
 
-// Relative path — Vite proxy forwards /api/* to localhost:3001 server-side (no mixed content issue)
+// ── Tool Callbacks Interface ───────────────────────────────────────────────────
+export interface AgentToolCallbacks {
+  onFiltersDetected?: (filters: ParsedFilters) => void;
+  onClearFilters?: () => void;
+  onAddToCart?: (productId: number, quantity: number) => void;
+  onNavigateToProduct?: (productId: number) => void;
+  getFilteredProductCount?: () => number;
+}
+
+// Relative path — Vite proxy forwards /api/* to localhost:3001 server-side
 const BACKEND_URL = '';
 
-export function useElevenLabsAgent() {
+export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastAction, setLastAction] = useState<string | null>(null);
   const conversationRef = useRef<Awaited<ReturnType<typeof Conversation.startSession>> | null>(null);
+  const callbacksRef = useRef(callbacks);
+  
+  // Keep callbacks ref updated
+  callbacksRef.current = callbacks;
 
-  const startListening = useCallback(async (onFiltersDetected?: (filters: ParsedFilters) => void) => {
+  const startListening = useCallback(async () => {
     try {
       setError(null);
+      setLastAction(null);
       setIsListening(true);
-      console.log('[v0] Requesting signed URL from backend via Vite proxy...');
+      console.log('[v0] Requesting signed URL from backend...');
 
-      // Fetch signed URL from backend — goes through Vite proxy (server-side HTTP, no CORS/mixed-content issue)
+      // Fetch signed URL from backend
       const response = await fetch(`${BACKEND_URL}/api/elevenlabs/signed-url`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -35,26 +58,127 @@ export function useElevenLabsAgent() {
       }
 
       const { signedUrl } = await response.json();
-      console.log('[v0] Signed URL received, starting ElevenLabs conversation session...');
+      console.log('[v0] Signed URL received, starting ElevenLabs conversation with client tools...');
 
-      // Start ElevenLabs conversation via WebSocket (WSS — HTTPS-safe, no mixed content)
+      // Start ElevenLabs conversation with client tools
       const conversation = await Conversation.startSession({
         signedUrl,
+        
+        // ── Client Tools Registration ──────────────────────────────────────
+        clientTools: {
+          // Tool: Apply shopping filters
+          applyFilters: async (params: ParsedFilters) => {
+            console.log('[v0] Tool called: applyFilters', params);
+            setLastAction(`Filtering: ${JSON.stringify(params)}`);
+            
+            if (callbacksRef.current.onFiltersDetected) {
+              callbacksRef.current.onFiltersDetected(params);
+            }
+            
+            const count = callbacksRef.current.getFilteredProductCount?.() ?? ALL_PRODUCTS.length;
+            return { 
+              success: true, 
+              message: `Filters applied. Found ${count} products matching your criteria.` 
+            };
+          },
+
+          // Tool: Clear all filters
+          clearFilters: async () => {
+            console.log('[v0] Tool called: clearFilters');
+            setLastAction('Cleared all filters');
+            
+            if (callbacksRef.current.onClearFilters) {
+              callbacksRef.current.onClearFilters();
+            }
+            
+            return { 
+              success: true, 
+              message: `All filters cleared. Showing all ${ALL_PRODUCTS.length} products.` 
+            };
+          },
+
+          // Tool: Add product to cart
+          addToCart: async (params: { productId: number; quantity?: number }) => {
+            console.log('[v0] Tool called: addToCart', params);
+            const product = getProductById(params.productId);
+            
+            if (!product) {
+              return { success: false, message: 'Product not found' };
+            }
+            
+            const qty = params.quantity ?? 1;
+            setLastAction(`Added ${qty}x ${product.name} to cart`);
+            
+            if (callbacksRef.current.onAddToCart) {
+              callbacksRef.current.onAddToCart(params.productId, qty);
+            }
+            
+            return { 
+              success: true, 
+              message: `Added ${qty} ${product.name} to your cart. Total: $${(product.price * qty).toFixed(2)}` 
+            };
+          },
+
+          // Tool: Get product details
+          getProductDetails: async (params: { productId: number }) => {
+            console.log('[v0] Tool called: getProductDetails', params);
+            const product = getProductById(params.productId);
+            
+            if (!product) {
+              return { success: false, message: 'Product not found' };
+            }
+            
+            setLastAction(`Showing details for ${product.name}`);
+            
+            return { 
+              success: true, 
+              product: {
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                description: product.description,
+                rating: product.rating,
+                brand: product.brand,
+                category: product.category,
+                freeShipping: product.freeShipping,
+                discount: product.discount,
+              }
+            };
+          },
+
+          // Tool: Navigate to product detail page
+          navigateToProduct: async (params: { productId: number }) => {
+            console.log('[v0] Tool called: navigateToProduct', params);
+            const product = getProductById(params.productId);
+            
+            if (!product) {
+              return { success: false, message: 'Product not found' };
+            }
+            
+            setLastAction(`Navigating to ${product.name}`);
+            
+            if (callbacksRef.current.onNavigateToProduct) {
+              callbacksRef.current.onNavigateToProduct(params.productId);
+            }
+            
+            return { 
+              success: true, 
+              message: `Opening ${product.name} details page.` 
+            };
+          },
+        },
+
+        // ── Event Handlers ─────────────────────────────────────────────────
         onMessage: ({ message, source }) => {
           console.log('[v0] Agent message:', source, message);
-          if (source === 'agent' && message) {
-            const filters = parseAgentResponse(message);
-            console.log('[v0] Parsed filters from agent:', filters);
-            if (onFiltersDetected && Object.keys(filters).length > 0) {
-              onFiltersDetected(filters);
-            }
-          }
         },
+        
         onError: (err) => {
           console.error('[v0] Conversation error:', err);
           setError(typeof err === 'string' ? err : 'Conversation error');
           setIsListening(false);
         },
+        
         onStatusChange: ({ status }) => {
           console.log('[v0] Conversation status:', status);
           if (status === 'connected') {
@@ -65,6 +189,7 @@ export function useElevenLabsAgent() {
             setIsProcessing(false);
           }
         },
+        
         onModeChange: ({ mode }) => {
           console.log('[v0] Mode changed:', mode);
           setIsProcessing(mode === 'thinking' || mode === 'speaking');
@@ -100,49 +225,8 @@ export function useElevenLabsAgent() {
     isListening,
     isProcessing,
     error,
+    lastAction,
     startListening,
     stopListening,
   };
-}
-
-// Parse natural language response from agent into structured filters
-function parseAgentResponse(text: string): ParsedFilters {
-  const filters: ParsedFilters = {};
-  const lower = text.toLowerCase();
-
-  // Extract category/product type
-  const categoryKeywords = ['keyboard', 'keyboards', 'audio', 'headphones', 'mouse', 'mice', 'charger', 'power'];
-  const foundCategories = categoryKeywords.filter(k => lower.includes(k));
-  if (foundCategories.length > 0) {
-    filters.category = foundCategories.map(c =>
-      c === 'keyboards' ? 'Keyboards' :
-      c === 'keyboard' ? 'Keyboards' :
-      c === 'headphones' ? 'Audio' :
-      c === 'audio' ? 'Audio' :
-      c === 'mouse' || c === 'mice' ? 'Mice' :
-      c === 'charger' || c === 'power' ? 'Power' : c
-    );
-  }
-
-  // Extract price ranges
-  if (lower.includes('under') || lower.includes('less than') || lower.includes('below')) {
-    const priceMatch = lower.match(/(?:under|less than|below)\s*\$?(\d+)/i);
-    if (priceMatch) filters.priceRange = `0-${priceMatch[1]}`;
-  } else if (lower.includes('over') || lower.includes('more than') || lower.includes('above')) {
-    const priceMatch = lower.match(/(?:over|more than|above)\s*\$?(\d+)/i);
-    if (priceMatch) filters.priceRange = `${priceMatch[1]}-999`;
-  } else if (lower.includes('between')) {
-    const priceMatch = lower.match(/between\s*\$?(\d+)\s*and\s*\$?(\d+)/i);
-    if (priceMatch) filters.priceRange = `${priceMatch[1]}-${priceMatch[2]}`;
-  }
-
-  // Extract fabric/material
-  const fabricMatch = lower.match(/(?:cotton|polyester|wool|linen|silk|denim|leather)/i);
-  if (fabricMatch) filters.fabric = fabricMatch[0];
-
-  // Extract color
-  const colorMatch = lower.match(/(?:red|blue|green|black|white|grey|gray|navy|pink|yellow|purple|orange)/i);
-  if (colorMatch) filters.color = colorMatch[0];
-
-  return filters;
 }

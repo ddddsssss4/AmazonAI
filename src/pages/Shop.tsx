@@ -467,19 +467,84 @@ export default function Shop() {
   const [sortBy, setSortBy] = useState('Performance');
   const [voiceFiltersApplied, setVoiceFiltersApplied] = useState<string>('');
 
-  // ── voice handler ─────────────────────────────────────────────────────────
+  // ── voice handlers ─────────────────────────────────────────────────────────
   const handleVoiceFilters = (filters: ParsedFilters) => {
-    if (filters.category && filters.category.length > 0) {
-      setSelectedCategories(filters.category);
+    // Apply categories
+    if (filters.categories?.length) {
+      setSelectedCategories(filters.categories);
     }
-    if (filters.priceRange) {
-      setSelectedPriceRange(filters.priceRange);
+    
+    // Apply brands
+    if (filters.brands?.length) {
+      setSelectedBrands(filters.brands);
     }
+    
+    // Apply colours
+    if (filters.colours?.length) {
+      setSelectedColours(filters.colours);
+    }
+    
+    // Apply price range
+    if (filters.priceMin !== undefined || filters.priceMax !== undefined) {
+      const min = filters.priceMin ?? 0;
+      const max = filters.priceMax ?? 999;
+      setSelectedPriceRange(`${min}-${max}`);
+    }
+    
+    // Apply free shipping
+    if (filters.freeShipping !== undefined) {
+      setFreeShippingOnly(filters.freeShipping);
+    }
+    
+    // Apply minimum rating
+    if (filters.minRating !== undefined) {
+      setMinRating(filters.minRating);
+    }
+    
+    // Apply minimum discount
+    if (filters.minDiscount !== undefined) {
+      setMinDiscount(filters.minDiscount);
+    }
+    
+    // Apply sorting
+    if (filters.sortBy) {
+      const sortMap: Record<string, string> = {
+        'price_low': 'Price: Low to High',
+        'price_high': 'Price: High to Low',
+        'rating': 'Top Rated',
+        'discount': 'Performance',
+      };
+      setSortBy(sortMap[filters.sortBy] || 'Performance');
+    }
+    
+    // Build feedback string
     const parts: string[] = [];
-    if (filters.category?.length) parts.push(`Category: ${filters.category.join(', ')}`);
-    if (filters.priceRange) parts.push(`Price: ${filters.priceRange}`);
+    if (filters.categories?.length) parts.push(`Category: ${filters.categories.join(', ')}`);
+    if (filters.brands?.length) parts.push(`Brand: ${filters.brands.join(', ')}`);
+    if (filters.colours?.length) parts.push(`Color: ${filters.colours.join(', ')}`);
+    if (filters.priceMin !== undefined || filters.priceMax !== undefined) {
+      parts.push(`Price: $${filters.priceMin ?? 0}-$${filters.priceMax ?? '999+'}`);
+    }
+    if (filters.freeShipping) parts.push('Free Shipping');
+    if (filters.minRating) parts.push(`${filters.minRating}+ Stars`);
     if (parts.length) setVoiceFiltersApplied(parts.join(' • '));
   };
+
+  const handleClearFilters = () => {
+    clearAll();
+  };
+
+  const handleAddToCart = (productId: number, quantity: number) => {
+    // For now, just log - cart integration will be added
+    console.log(`[v0] Add to cart: Product ${productId}, Qty: ${quantity}`);
+    // TODO: Integrate with cart context when available
+  };
+
+  const handleNavigateToProduct = (productId: number) => {
+    navigate(`/product/${productId}`);
+  };
+
+  const getFilteredProductCount = () => filteredProducts.length;
 
   // ── filter logic ──────────────────────────────────────────────────────────
   const filteredProducts = ALL_PRODUCTS.filter(p => {
@@ -539,7 +604,13 @@ export default function Shop() {
           {/* AI Voice */}
           <div className="bg-white neo-border neo-shadow p-5 mb-4">
             <h2 className="font-headline text-xl font-black uppercase mb-4 pb-2 border-b-2 border-black">AI Voice</h2>
-            <VoiceFilterButton onFiltersDetected={handleVoiceFilters} />
+            <VoiceFilterButton 
+              onFiltersDetected={handleVoiceFilters}
+              onClearFilters={handleClearFilters}
+              onAddToCart={handleAddToCart}
+              onNavigateToProduct={handleNavigateToProduct}
+              getFilteredProductCount={getFilteredProductCount}
+            />
             {voiceFiltersApplied && (
               <div className="mt-3 bg-electric-pink bg-opacity-10 border-2 border-electric-pink p-2 font-mono text-xs text-black">
                 {voiceFiltersApplied}
