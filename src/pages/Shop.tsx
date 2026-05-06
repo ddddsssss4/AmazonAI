@@ -37,7 +37,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 4,
     badge: 'New',
     freeShipping: true,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA8biZLVpkCJJRjqCxt_aWWSt7WvHN_QZTvMmuxfwtZ1RKNTb8pp_ZnF3N76Xtde45vuyX-CJt2ulU--w9lBPHGku0RkT3SP8eTZqXmBXEaLl1qj8gNSHYxV3-FTqAhKhDqOKVSisMll-vAUQE53L1O7ASWyMHZM_RHsrguBWcls1G0njZ16jw1BqNDrTqpMBHqQJN1DwMagkp4bl1Kb-pFJZ3IQj6JBk5M9eDfwsYD3KKuMxNJW_RSGhUqqQiLb342oSs9ellv_0D3',
+    image: '/products/keyboard-tactile-pro.jpg',
   },
   {
     id: 2,
@@ -51,7 +51,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 5,
     badge: 'Best Seller',
     freeShipping: true,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAdSgcGAykcJiDJwYORA3S0fBoPn08FCuHb2EDwrIL96dVEdPlQB0I-r9Zj0TN7BTwP4q-vQn_ttFZu9cDGGLdBfkXHC2Jzp3VuyCd-xwp8c7V_Ayr29YsRvQl4sMhUjS84F2kKftfFS7YlgXLsKn598PQz_YlKLrpqCxCSrMPFfm6kEZ65rZZTwb9iwN3-SxABXEJOF4FRwa0Acnf8bmmefQPdPKpW6ruQGglcPN9fJ3o88Q-Ea4cruhysGqkbQBvywGERSda1jS3l',
+    image: '/products/headphones-acoustic.jpg',
   },
   {
     id: 3,
@@ -64,7 +64,7 @@ const ALL_PRODUCTS: Product[] = [
     discount: 0,
     rating: 4,
     freeShipping: false,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDARHQ5UueYxJBVVQlnB51PdhzWlKkicUAFtNvVa7N60HZ23FipCqVXkE_9j4d7uu4aNSgpnP4q6wqQPR4Od8g6Hzg5EMH4ieqbw04rOpswRdhIOHSkuaRZ1wO1ihacP95VK49IjczyUqKePNL67_b-ic3SN-oVoRxcV67GS3j7-VDahpWB1hfKdRovPZ9VGBNSfte69riMEHyMV43LIUPnbQ1RUzG9mROGAbv1a6mZHaXv4queKKAvdcoBou_EdEFNgB9BvA4cCA4x',
+    image: '/products/charger-qi-ceramic.jpg',
   },
   {
     id: 4,
@@ -78,7 +78,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 4,
     badge: 'New',
     freeShipping: true,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBQ9kq6P8Kv_9nCeFkJ1ZlL8cKUDDjx3mz6-WrAjAfMNZBkHvUMkGcFl1rAYW3x00sM1mUi9L_Ihi-LX9o5lVXuJhBXdZRX8x2cGCwjnZU0z2nLtBFu3MIm5s_3mIopeBNcDTF8M9Z6YkVFJWlpO-4Ia3pXuGf1CcAQAqYIkEFQNbC0t2DRxhqGR4e8qfCbzMIcZ5E',
+    image: '/products/mouse-precision-ergo.jpg',
   },
   {
     id: 5,
@@ -91,7 +91,7 @@ const ALL_PRODUCTS: Product[] = [
     discount: 35,
     rating: 4,
     freeShipping: true,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBkgFW3z3pMHW_kq7aNQkHWcNY1DRc5T60V5M_SWyFbz-HNPxQfZuqD7E7RoAJaJHlRr_dq9gqxKlcyZgm3RLzRRGSvnQPfC1zClNaVA4VINHzLXGz8NrwVzSHb1YF0Ak4EzxoYGXxHiuLKjAeVXqQVMU0KrxsKPOb0_Y',
+    image: '/products/keyboard-tkl-compact.jpg',
   },
   {
     id: 6,
@@ -105,7 +105,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 5,
     badge: 'Deal',
     freeShipping: true,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBdTSGCVhQ4vXrPAv-PBYpD5WEYeIYmQ2_h7EMHB9t0QNLhFiX97NxjA2ULB3ZGmUkS1cFSQUJ97V8E22vfhFMRPk5zJ4Vii5v3lG_C1rIifMHpVlBblgmODLPdN4xzFhRpf8TIWCifwNiaBQ',
+    image: '/products/earbuds-studio-monitor.jpg',
   },
   {
     id: 7,
@@ -118,7 +118,7 @@ const ALL_PRODUCTS: Product[] = [
     discount: 25,
     rating: 4,
     freeShipping: false,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBzOqMv9bPzXXvN5S9R5JHfBGbAbEoJSJMaFlwRLLv-zPcTgbqWI-hT2OJlHR1tkCXLT3I_KVQR5KuRU2nVCQK0yRQrRfUl',
+    image: '/products/charger-gan-100w.jpg',
   },
   {
     id: 8,
@@ -132,7 +132,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 5,
     badge: 'Top Rated',
     freeShipping: true,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCZvOBkBd5H5YFt4s_TGMoJBZ8X6Nq1IaHJFq3VH7JwGMnrplUMRPH0cUF1dJeSYESmTjQxnKQ9Fn1E6m7TfqnQoHhPfMi_3ZF9j8K',
+    image: '/products/mouse-fps-ambidextrous.jpg',
   },
   {
     id: 9,
@@ -146,7 +146,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 4,
     badge: 'Deal',
     freeShipping: false,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA1q2J_xgqyMrCFvhLMEtY9d2B8uNxKvxR6tXJz3oNPDT0b1bTYFoRJPQv0w_ZtCz1Mj8CSnLrqGQ',
+    image: '/products/powerbank-26800.jpg',
   },
   {
     id: 10,
@@ -159,7 +159,7 @@ const ALL_PRODUCTS: Product[] = [
     discount: 35,
     rating: 4,
     freeShipping: true,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDLK8_sUMRBSSfJQzJgXaIYdp3zs2Y9Fo7m2nVNB6tHRZuDaUUzfYbMsS-2Dkh8WVA7nRMkSOVDVJX6Kw1rmMPLr5PIJL5Xw',
+    image: '/products/speaker-wireless-desktop.jpg',
   },
   {
     id: 11,
@@ -172,7 +172,7 @@ const ALL_PRODUCTS: Product[] = [
     discount: 25,
     rating: 5,
     freeShipping: true,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBUJqK_5c0MO4XBhWBSF4h0x7gG5n1XVnOxRqVQFAx0pXGPkGjLRiRJtmXpoBDUGGSmFMDALz5Y9S4',
+    image: '/products/mouse-vertical-ergo.jpg',
   },
   {
     id: 12,
@@ -186,7 +186,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 5,
     badge: 'New',
     freeShipping: true,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBT5gPdMlwNJ3Ax3e78e2sxLXy3qOdl0sxQNNOgpPLGv9H1FuH0i1WbF_GiOMt2h93mNZxf3JFqxeqfxk',
+    image: '/products/keyboard-split-ortho.jpg',
   },
 
   // ── T-Shirts ──
@@ -202,7 +202,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 4,
     badge: 'Best Seller',
     freeShipping: true,
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80',
+    image: '/products/tshirt-classic-cotton.jpg',
   },
   {
     id: 14,
@@ -216,7 +216,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 5,
     badge: 'New',
     freeShipping: true,
-    image: 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&q=80',
+    image: '/products/tshirt-oversized-graphic.jpg',
   },
   {
     id: 15,
@@ -229,7 +229,7 @@ const ALL_PRODUCTS: Product[] = [
     discount: 0,
     rating: 4,
     freeShipping: false,
-    image: 'https://images.unsplash.com/photo-1554568218-0f1715e72254?w=600&q=80',
+    image: '/products/tshirt-dryfit.jpg',
   },
 
   // ── Dresses ──
@@ -245,7 +245,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 5,
     badge: 'Best Seller',
     freeShipping: true,
-    image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=600&q=80',
+    image: '/products/dress-linen-midi.jpg',
   },
   {
     id: 17,
@@ -259,7 +259,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 4,
     badge: 'New',
     freeShipping: true,
-    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&q=80',
+    image: '/products/dress-bodycon-evening.jpg',
   },
   {
     id: 18,
@@ -273,7 +273,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 4,
     badge: 'Deal',
     freeShipping: false,
-    image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&q=80',
+    image: '/products/dress-boho-wrap.jpg',
   },
 
   // ── Kurtas ──
@@ -289,7 +289,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 5,
     badge: 'Best Seller',
     freeShipping: true,
-    image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&q=80',
+    image: '/products/kurta-straight-cotton.jpg',
   },
   {
     id: 20,
@@ -302,7 +302,7 @@ const ALL_PRODUCTS: Product[] = [
     discount: 25,
     rating: 4,
     freeShipping: true,
-    image: 'https://images.unsplash.com/photo-1594938298603-c8148c4b4267?w=600&q=80',
+    image: '/products/kurta-anarkali-embroidered.jpg',
   },
   {
     id: 21,
@@ -316,7 +316,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 4,
     badge: 'Deal',
     freeShipping: false,
-    image: 'https://images.unsplash.com/photo-1614093302611-8efc4c499e3b?w=600&q=80',
+    image: '/products/kurta-blockprint-aline.jpg',
   },
 
   // ── Sweatshirts ──
@@ -332,7 +332,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 5,
     badge: 'Best Seller',
     freeShipping: true,
-    image: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80',
+    image: '/products/sweatshirt-fleece-hoodie.jpg',
   },
   {
     id: 23,
@@ -345,7 +345,7 @@ const ALL_PRODUCTS: Product[] = [
     discount: 25,
     rating: 4,
     freeShipping: true,
-    image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80',
+    image: '/products/sweatshirt-vintage-crew.jpg',
   },
   {
     id: 24,
@@ -359,7 +359,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 4,
     badge: 'New',
     freeShipping: true,
-    image: 'https://images.unsplash.com/photo-1509942774463-acf339cf87d5?w=600&q=80',
+    image: '/products/sweatshirt-zip-techfleece.jpg',
   },
 
   // ── Leather ──
@@ -375,7 +375,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 5,
     badge: 'Top Rated',
     freeShipping: true,
-    image: 'https://images.unsplash.com/photo-1548883354-94bcfe321cbb?w=600&q=80',
+    image: '/products/leather-biker-jacket.jpg',
   },
   {
     id: 26,
@@ -388,7 +388,7 @@ const ALL_PRODUCTS: Product[] = [
     discount: 25,
     rating: 4,
     freeShipping: false,
-    image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80',
+    image: '/products/leather-suede-bomber.jpg',
   },
   {
     id: 27,
@@ -402,7 +402,7 @@ const ALL_PRODUCTS: Product[] = [
     rating: 5,
     badge: 'Deal',
     freeShipping: true,
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80',
+    image: '/products/leather-slim-blazer.jpg',
   },
 ];
 
@@ -453,7 +453,7 @@ function FilterSection({ title, children, defaultOpen = true }: { title: string;
   );
 }
 
-// ── main component ─────────────────────────────────────────────────────────────
+// ── main component ────────────────────────────────────────────��────────────────
 export default function Shop() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
