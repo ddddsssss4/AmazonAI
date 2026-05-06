@@ -765,7 +765,7 @@ export default function Shop() {
                   productDescription={product.description}
                   productPrice={product.price}
                 >
-                  <Link to="/product" className="contents">
+                  <Link to={`/product/${product.id}`} className="contents">
                     <div className="relative w-full aspect-square border-b-2 border-black bg-surface-container overflow-hidden p-4 flex items-center justify-center">
                       <img
                         src={product.image}

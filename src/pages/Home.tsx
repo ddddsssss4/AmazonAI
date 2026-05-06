@@ -282,79 +282,89 @@ export default function Home() {
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* id=2: Acoustic Over-Ear headphones */}
           <article className="bg-white neo-border neo-shadow flex flex-col group cursor-pointer relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:neo-shadow-lg">
-            <Link to="/product" className="contents">
+            <Link to="/product/2" className="contents">
               <div className="h-64 border-b-2 border-black overflow-hidden relative p-4 bg-surface-container flex items-center justify-center">
                 <img src="/home/featured-acoustic-headphones.jpg" alt="Acoustic Over-Ear" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
               </div>
               <div className="p-4 flex flex-col gap-2 bg-white z-10 relative flex-grow">
                 <div className="flex justify-between items-start">
                   <h3 className="font-headline font-bold uppercase text-xl leading-tight">Acoustic Over-Ear</h3>
-                  <span className="font-mono font-bold">$299</span>
+                  <span className="font-mono font-bold">$240</span>
                 </div>
                 <p className="font-body text-gray-600 text-sm">Industrial Grade Audio.</p>
                 <div className="mt-auto pt-4">
-                  <button className="w-full py-3 bg-white text-black border-2 border-black font-mono font-bold uppercase hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2">
-                    Add to Cart <Plus size={18} strokeWidth={3} />
-                  </button>
+                  <span className="w-full py-3 bg-white text-black border-2 border-black font-mono font-bold uppercase hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2">
+                    View Product <Plus size={18} strokeWidth={3} />
+                  </span>
                 </div>
               </div>
             </Link>
           </article>
 
+          {/* id=1: Tactile Pro Keyboard */}
           <article className="bg-white neo-border neo-shadow flex flex-col group cursor-pointer relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:neo-shadow-lg">
-            <div className="h-64 border-b-2 border-black overflow-hidden relative p-4 bg-surface-container flex items-center justify-center">
-              <img src="/home/featured-chrono-watch.jpg" alt="Essential Chrono" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
-            </div>
-            <div className="p-4 flex flex-col gap-2 bg-white z-10 relative flex-grow">
-              <div className="flex justify-between items-start">
-                <h3 className="font-headline font-bold uppercase text-xl leading-tight">Essential Chrono</h3>
-                <span className="font-mono font-bold">$149</span>
+            <Link to="/product/1" className="contents">
+              <div className="h-64 border-b-2 border-black overflow-hidden relative p-4 bg-surface-container flex items-center justify-center">
+                <img src="/home/featured-chrono-watch.jpg" alt="Tactile Pro Keyboard" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
               </div>
-              <p className="font-body text-gray-600 text-sm">Precision Timekeeping.</p>
-              <div className="mt-auto pt-4">
-                <button className="w-full py-3 bg-white text-black border-2 border-black font-mono font-bold uppercase hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2">
-                  Add to Cart <Plus size={18} strokeWidth={3} />
-                </button>
+              <div className="p-4 flex flex-col gap-2 bg-white z-10 relative flex-grow">
+                <div className="flex justify-between items-start">
+                  <h3 className="font-headline font-bold uppercase text-xl leading-tight">Tactile Pro Keyboard</h3>
+                  <span className="font-mono font-bold">$189</span>
+                </div>
+                <p className="font-body text-gray-600 text-sm">Precision Keystroke.</p>
+                <div className="mt-auto pt-4">
+                  <span className="w-full py-3 bg-white text-black border-2 border-black font-mono font-bold uppercase hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2">
+                    View Product <Plus size={18} strokeWidth={3} />
+                  </span>
+                </div>
               </div>
-            </div>
+            </Link>
           </article>
 
+          {/* id=22: Essential Fleece Hoodie */}
           <article className="bg-white neo-border neo-shadow flex flex-col group cursor-pointer relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:neo-shadow-lg">
-            <div className="h-64 border-b-2 border-black overflow-hidden relative p-0 bg-surface-container flex items-center justify-center">
-              <img src="/home/featured-morning-ceramic.jpg" alt="Morning Ceramic" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
-              <div className="absolute top-2 left-2 bg-black text-white px-2 py-1 font-mono text-[10px] font-bold uppercase z-20">Best Seller</div>
-            </div>
-            <div className="p-4 flex flex-col gap-2 bg-white z-10 relative flex-grow">
-              <div className="flex justify-between items-start">
-                <h3 className="font-headline font-bold uppercase text-xl leading-tight">Morning Ceramic</h3>
-                <span className="font-mono font-bold">$85</span>
+            <Link to="/product/22" className="contents">
+              <div className="h-64 border-b-2 border-black overflow-hidden relative p-0 bg-surface-container flex items-center justify-center">
+                <img src="/home/featured-morning-ceramic.jpg" alt="Essential Fleece Hoodie" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute top-2 left-2 bg-black text-white px-2 py-1 font-mono text-[10px] font-bold uppercase z-20">Best Seller</div>
               </div>
-              <p className="font-body text-gray-600 text-sm">Raw Form Function.</p>
-              <div className="mt-auto pt-4">
-                <button className="w-full py-3 bg-white text-black border-2 border-black font-mono font-bold uppercase hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2">
-                  Add to Cart <Plus size={18} strokeWidth={3} />
-                </button>
+              <div className="p-4 flex flex-col gap-2 bg-white z-10 relative flex-grow">
+                <div className="flex justify-between items-start">
+                  <h3 className="font-headline font-bold uppercase text-xl leading-tight">Essential Fleece Hoodie</h3>
+                  <span className="font-mono font-bold">$55</span>
+                </div>
+                <p className="font-body text-gray-600 text-sm">380gsm Warmth.</p>
+                <div className="mt-auto pt-4">
+                  <span className="w-full py-3 bg-white text-black border-2 border-black font-mono font-bold uppercase hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2">
+                    View Product <Plus size={18} strokeWidth={3} />
+                  </span>
+                </div>
               </div>
-            </div>
+            </Link>
           </article>
 
+          {/* id=25: Classic Biker Jacket */}
           <article className="bg-white neo-border neo-shadow flex flex-col group cursor-pointer relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:neo-shadow-lg">
-            <div className="h-64 border-b-2 border-black overflow-hidden relative p-0 bg-surface-container flex items-center justify-center">
-              <img src="/home/featured-slim-folio.jpg" alt="Slim Folio" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
-            </div>
-            <div className="p-4 flex flex-col gap-2 bg-white z-10 relative flex-grow">
-              <div className="flex justify-between items-start">
-                <h3 className="font-headline font-bold uppercase text-xl leading-tight">Slim Folio</h3>
-                <span className="font-mono font-bold">$110</span>
+            <Link to="/product/25" className="contents">
+              <div className="h-64 border-b-2 border-black overflow-hidden relative p-0 bg-surface-container flex items-center justify-center">
+                <img src="/home/featured-slim-folio.jpg" alt="Classic Biker Jacket" className="object-cover h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
               </div>
-              <p className="font-body text-gray-600 text-sm">Uncompromising Storage.</p>
-              <div className="mt-auto pt-4">
-                <button className="w-full py-3 bg-white text-black border-2 border-black font-mono font-bold uppercase hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2">
-                  Add to Cart <Plus size={18} strokeWidth={3} />
-                </button>
+              <div className="p-4 flex flex-col gap-2 bg-white z-10 relative flex-grow">
+                <div className="flex justify-between items-start">
+                  <h3 className="font-headline font-bold uppercase text-xl leading-tight">Classic Biker Jacket</h3>
+                  <span className="font-mono font-bold">$249</span>
+                </div>
+                <p className="font-body text-gray-600 text-sm">Full-grain Cowhide.</p>
+                <div className="mt-auto pt-4">
+                  <span className="w-full py-3 bg-white text-black border-2 border-black font-mono font-bold uppercase hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2">
+                    View Product <Plus size={18} strokeWidth={3} />
+                  </span>
+                </div>
               </div>
-            </div>
+            </Link>
           </article>
         </div>
       </section>
