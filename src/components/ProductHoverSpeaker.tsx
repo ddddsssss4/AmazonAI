@@ -1,5 +1,5 @@
-import { Volume2, VolumeX } from 'lucide-react';
-import { ReactNode, useState } from 'react';
+import { Volume2, VolumeX, Loader } from 'lucide-react';
+import { ReactNode } from 'react';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
 
 interface ProductHoverSpeakerProps {
@@ -15,23 +15,12 @@ export default function ProductHoverSpeaker({
   productDescription,
   productPrice,
 }: ProductHoverSpeakerProps) {
-  const [showSpeaker, setShowSpeaker] = useState(false);
   const { speak, stop, isSpeaking, isLoading } = useTextToSpeech();
-
-  const handleMouseEnter = () => {
-    setShowSpeaker(true);
-  };
-
-  const handleMouseLeave = () => {
-    setShowSpeaker(false);
-    if (isSpeaking) {
-      stop();
-    }
-  };
 
   const fullDescription = `${productName}. Price: $${productPrice}. ${productDescription}`;
 
   const handleSpeak = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     if (isSpeaking) {
       stop();
@@ -41,33 +30,31 @@ export default function ProductHoverSpeaker({
   };
 
   return (
-    <div
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className="relative group"
-    >
+    <div className="relative">
       {children}
 
-      {showSpeaker && (
-        <button
-          onClick={handleSpeak}
-          disabled={isLoading}
-          className={`absolute top-4 right-4 z-20 p-2 rounded-full transition-all duration-200 ${
-            isSpeaking
-              ? 'bg-electric-pink text-white scale-110'
-              : isLoading
-                ? 'bg-gray-400 text-white cursor-wait'
-                : 'bg-white text-black border-2 border-black hover:bg-electric-pink hover:text-white hover:border-electric-pink'
-          }`}
-          title={isSpeaking ? 'Stop' : 'Speak product details'}
-        >
-          {isSpeaking ? (
-            <VolumeX size={20} />
-          ) : (
-            <Volume2 size={20} />
-          )}
-        </button>
-      )}
+      {/* Always visible speaker button */}
+      <button
+        onClick={handleSpeak}
+        disabled={isLoading}
+        className={`absolute top-4 right-4 z-20 p-2 neo-border transition-all duration-200 ${
+          isSpeaking
+            ? 'bg-electric-pink text-white neo-shadow'
+            : isLoading
+              ? 'bg-gray-200 text-gray-500 cursor-wait'
+              : 'bg-white text-black hover:bg-electric-pink hover:text-white neo-shadow'
+        }`}
+        title={isSpeaking ? 'Stop listening' : 'Listen to product details'}
+        aria-label={isSpeaking ? 'Stop listening' : 'Listen to product details'}
+      >
+        {isLoading ? (
+          <Loader size={18} className="animate-spin" />
+        ) : isSpeaking ? (
+          <VolumeX size={18} />
+        ) : (
+          <Volume2 size={18} />
+        )}
+      </button>
     </div>
   );
 }
