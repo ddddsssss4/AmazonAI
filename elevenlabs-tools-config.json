@@ -1,0 +1,213 @@
+[
+  {
+    "type": "client",
+    "name": "applyFilters",
+    "description": "Apply filters to find products. Use this when the user asks for specific products, prices, brands, colors, or other product attributes.",
+    "expects_response": true,
+    "response_timeout_secs": 1,
+    "parameters": [
+      {
+        "id": "categories",
+        "type": "string",
+        "description": "Product categories to filter by (e.g., Clothing, Tech, Home)",
+        "dynamic_variable": "",
+        "required": false,
+        "constant_value": "",
+        "value_type": "llm_prompt"
+      },
+      {
+        "id": "priceMin",
+        "type": "number",
+        "description": "Minimum price in dollars",
+        "dynamic_variable": "",
+        "required": false,
+        "constant_value": "",
+        "value_type": "llm_prompt"
+      },
+      {
+        "id": "priceMax",
+        "type": "number",
+        "description": "Maximum price in dollars",
+        "dynamic_variable": "",
+        "required": false,
+        "constant_value": "",
+        "value_type": "llm_prompt"
+      },
+      {
+        "id": "brands",
+        "type": "string",
+        "description": "Brand names to filter by (e.g., Apple, Sony, Nike)",
+        "dynamic_variable": "",
+        "required": false,
+        "constant_value": "",
+        "value_type": "llm_prompt"
+      },
+      {
+        "id": "colours",
+        "type": "string",
+        "description": "Color options (e.g., Black, White, Red, Blue)",
+        "dynamic_variable": "",
+        "required": false,
+        "constant_value": "",
+        "value_type": "llm_prompt"
+      },
+      {
+        "id": "freeShipping",
+        "type": "boolean",
+        "description": "Only show products with free shipping",
+        "dynamic_variable": "",
+        "required": false,
+        "constant_value": "",
+        "value_type": "llm_prompt"
+      },
+      {
+        "id": "minRating",
+        "type": "number",
+        "description": "Minimum star rating (1-5)",
+        "dynamic_variable": "",
+        "required": false,
+        "constant_value": "",
+        "value_type": "llm_prompt"
+      },
+      {
+        "id": "minDiscount",
+        "type": "number",
+        "description": "Minimum discount percentage",
+        "dynamic_variable": "",
+        "required": false,
+        "constant_value": "",
+        "value_type": "llm_prompt"
+      },
+      {
+        "id": "sortBy",
+        "type": "string",
+        "description": "Sort option: price_low, price_high, rating, discount",
+        "dynamic_variable": "",
+        "required": false,
+        "constant_value": "",
+        "value_type": "llm_prompt"
+      }
+    ],
+    "dynamic_variables": {
+      "dynamic_variable_placeholders": {}
+    },
+    "assignments": [],
+    "disable_interruptions": true,
+    "pre_tool_speech": "auto",
+    "tool_call_sound": null,
+    "tool_call_sound_behavior": "auto",
+    "execution_mode": "immediate",
+    "response_mocks": []
+  },
+  {
+    "type": "client",
+    "name": "clearFilters",
+    "description": "Clear all active filters and show all products. Use this when user says clear filters, show all, or reset.",
+    "expects_response": true,
+    "response_timeout_secs": 1,
+    "parameters": [],
+    "dynamic_variables": {
+      "dynamic_variable_placeholders": {}
+    },
+    "assignments": [],
+    "disable_interruptions": true,
+    "pre_tool_speech": "auto",
+    "tool_call_sound": null,
+    "tool_call_sound_behavior": "auto",
+    "execution_mode": "immediate",
+    "response_mocks": []
+  },
+  {
+    "type": "client",
+    "name": "navigateToProduct",
+    "description": "Navigate to a specific product details page. Use this when user wants to see details of a specific product.",
+    "expects_response": true,
+    "response_timeout_secs": 1,
+    "parameters": [
+      {
+        "id": "productId",
+        "type": "number",
+        "description": "The ID of the product to view",
+        "dynamic_variable": "",
+        "required": true,
+        "constant_value": "",
+        "value_type": "llm_prompt"
+      }
+    ],
+    "dynamic_variables": {
+      "dynamic_variable_placeholders": {}
+    },
+    "assignments": [],
+    "disable_interruptions": true,
+    "pre_tool_speech": "auto",
+    "tool_call_sound": null,
+    "tool_call_sound_behavior": "auto",
+    "execution_mode": "immediate",
+    "response_mocks": []
+  },
+  {
+    "type": "client",
+    "name": "addToCart",
+    "description": "Add a product to shopping cart. Use this when user says add, buy, or add to cart with a product name or ID.",
+    "expects_response": true,
+    "response_timeout_secs": 1,
+    "parameters": [
+      {
+        "id": "productId",
+        "type": "number",
+        "description": "The product ID to add",
+        "dynamic_variable": "",
+        "required": true,
+        "constant_value": "",
+        "value_type": "llm_prompt"
+      },
+      {
+        "id": "quantity",
+        "type": "number",
+        "description": "Quantity to add (default: 1)",
+        "dynamic_variable": "",
+        "required": false,
+        "constant_value": "",
+        "value_type": "llm_prompt"
+      }
+    ],
+    "dynamic_variables": {
+      "dynamic_variable_placeholders": {}
+    },
+    "assignments": [],
+    "disable_interruptions": true,
+    "pre_tool_speech": "auto",
+    "tool_call_sound": null,
+    "tool_call_sound_behavior": "auto",
+    "execution_mode": "immediate",
+    "response_mocks": []
+  },
+  {
+    "type": "client",
+    "name": "getProductDetails",
+    "description": "Get detailed information about a specific product including price, description, specs, and reviews.",
+    "expects_response": true,
+    "response_timeout_secs": 1,
+    "parameters": [
+      {
+        "id": "productId",
+        "type": "number",
+        "description": "The ID of the product to get details for",
+        "dynamic_variable": "",
+        "required": true,
+        "constant_value": "",
+        "value_type": "llm_prompt"
+      }
+    ],
+    "dynamic_variables": {
+      "dynamic_variable_placeholders": {}
+    },
+    "assignments": [],
+    "disable_interruptions": true,
+    "pre_tool_speech": "auto",
+    "tool_call_sound": null,
+    "tool_call_sound_behavior": "auto",
+    "execution_mode": "immediate",
+    "response_mocks": []
+  }
+]
