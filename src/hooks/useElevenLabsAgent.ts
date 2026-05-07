@@ -29,38 +29,51 @@ export interface AgentToolCallbacks {
 // Relative path — Vite proxy forwards /api/* to localhost:3001 server-side
 const BACKEND_URL = '';
 
-// Helper function to find product by name (fuzzy matching)
-const findProductByName = (searchTerm: string) => {
+// Helper function to find ALL products matching a search term (fuzzy matching)
+const findProductsByName = (searchTerm: string) => {
   const term = searchTerm.toLowerCase();
-  
-  // Try exact/partial name match first
-  let product = ALL_PRODUCTS.find(p => 
-    p.name.toLowerCase().includes(term) ||
-    term.includes(p.name.toLowerCase())
-  );
-  
-  if (product) return product;
-  
-  // Try matching category (e.g., "keyboard" matches "Keyboards")
-  product = ALL_PRODUCTS.find(p => 
-    p.category.toLowerCase().includes(term) ||
-    term.includes(p.category.toLowerCase().replace(/s$/, ''))
-  );
-  
-  if (product) return product;
-  
-  // Try word-by-word matching
   const words = term.split(' ').filter(w => w.length > 2);
-  product = ALL_PRODUCTS.find(p => 
-    words.some(word => 
-      p.name.toLowerCase().includes(word) ||
-      p.category.toLowerCase().includes(word) ||
-      p.brand.toLowerCase().includes(word) ||
-      p.colour?.toLowerCase().includes(word)
-    )
-  );
   
-  return product || null;
+  // Score each product based on how well it matches
+  const scored = ALL_PRODUCTS.map(p => {
+    let score = 0;
+    const name = p.name.toLowerCase();
+    const category = p.category.toLowerCase();
+    const brand = p.brand.toLowerCase();
+    const colour = p.colour?.toLowerCase() || '';
+    
+    // Exact name match = highest score
+    if (name === term) score += 100;
+    // Name contains search term
+    else if (name.includes(term)) score += 50;
+    // Search term contains product name
+    else if (term.includes(name)) score += 40;
+    
+    // Category match
+    if (category.includes(term) || term.includes(category.replace(/s$/, ''))) score += 30;
+    
+    // Word-by-word matching
+    words.forEach(word => {
+      if (name.includes(word)) score += 20;
+      if (category.includes(word)) score += 15;
+      if (brand.includes(word)) score += 10;
+      if (colour.includes(word)) score += 10;
+    });
+    
+    return { product: p, score };
+  });
+  
+  // Return products with score > 0, sorted by score descending
+  return scored
+    .filter(s => s.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(s => s.product);
+};
+
+// Helper to find single best match
+const findProductByName = (searchTerm: string) => {
+  const matches = findProductsByName(searchTerm);
+  return matches.length > 0 ? matches[0] : null;
 };
 
 export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
@@ -242,16 +255,32 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
           addToCart: async (params: { productName: string; quantity?: number }) => {
             console.log('[v0] Tool called: addToCart', params);
             
-            // Find product by name
-            const product = findProductByName(params.productName);
+            // Find ALL matching products
+            const matches = findProductsByName(params.productName);
             
-            if (!product) {
+            if (matches.length === 0) {
               return { 
                 success: false, 
                 message: `Could not find a product matching "${params.productName}". Try searching for products first.` 
               };
             }
             
+            // If multiple matches, ask user to be more specific
+            if (matches.length > 1) {
+              const options = matches.slice(0, 5).map(p => 
+                `${p.name} by ${p.brand} ($${p.price})`
+              );
+              return {
+                success: false,
+                multipleMatches: true,
+                count: matches.length,
+                options: options,
+                message: `Found ${matches.length} products matching "${params.productName}". Which one would you like to add? Options: ${options.join(', ')}`
+              };
+            }
+            
+            // Single match - add to cart
+            const product = matches[0];
             const qty = params.quantity ?? 1;
             setLastAction(`Added ${qty}x ${product.name} to cart`);
             
@@ -269,16 +298,37 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
           getProductDetails: async (params: { productName: string }) => {
             console.log('[v0] Tool called: getProductDetails', params);
             
-            // Find product by name
-            const product = findProductByName(params.productName);
+            // Find ALL matching products
+            const matches = findProductsByName(params.productName);
             
-            if (!product) {
+            if (matches.length === 0) {
               return { 
                 success: false, 
                 message: `Could not find a product matching "${params.productName}". Try searching for products first.` 
               };
             }
             
+            // If multiple matches, return all of them so AI can describe options
+            if (matches.length > 1) {
+              const products = matches.slice(0, 5).map(p => ({
+                id: p.id,
+                name: p.name,
+                price: p.price,
+                brand: p.brand,
+                rating: p.rating,
+                colour: p.colour
+              }));
+              return {
+                success: true,
+                multipleMatches: true,
+                count: matches.length,
+                products: products,
+                message: `Found ${matches.length} products matching "${params.productName}".`
+              };
+            }
+            
+            // Single match - return full details
+            const product = matches[0];
             setLastAction(`Showing details for ${product.name}`);
             
             return { 
@@ -301,16 +351,32 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
           navigateToProduct: async (params: { productName: string }) => {
             console.log('[v0] Tool called: navigateToProduct', params);
             
-            // Find product by name using helper
-            const product = findProductByName(params.productName);
+            // Find ALL matching products
+            const matches = findProductsByName(params.productName);
             
-            if (!product) {
+            if (matches.length === 0) {
               return { 
                 success: false, 
                 message: `Could not find a product matching "${params.productName}". Try searching for products first.` 
               };
             }
             
+            // If multiple matches, ask user to be more specific
+            if (matches.length > 1) {
+              const options = matches.slice(0, 5).map(p => 
+                `${p.name} by ${p.brand} ($${p.price})`
+              );
+              return {
+                success: false,
+                multipleMatches: true,
+                count: matches.length,
+                options: options,
+                message: `Found ${matches.length} products matching "${params.productName}". Please be more specific. Options: ${options.join(', ')}`
+              };
+            }
+            
+            // Single match - navigate
+            const product = matches[0];
             setLastAction(`Navigating to ${product.name}`);
             
             if (callbacksRef.current.onNavigateToProduct) {
