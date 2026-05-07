@@ -45,6 +45,28 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
       setError(null);
       setLastAction(null);
       setIsListening(true);
+      
+      // Explicitly request microphone permission first
+      console.log('[v0] Requesting microphone permission...');
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Stop the stream immediately - we just needed to get permission
+        stream.getTracks().forEach(track => track.stop());
+        console.log('[v0] Microphone permission granted');
+      } catch (micError) {
+        console.error('[v0] Microphone permission error:', micError);
+        if (micError instanceof Error) {
+          if (micError.name === 'NotAllowedError' || micError.name === 'PermissionDeniedError') {
+            throw new Error('Permission denied');
+          } else if (micError.name === 'NotFoundError') {
+            throw new Error('NotFoundError');
+          } else if (micError.name === 'NotReadableError') {
+            throw new Error('NotReadableError');
+          }
+        }
+        throw micError;
+      }
+      
       console.log('[v0] Requesting signed URL from backend...');
 
       // Fetch signed URL from backend
