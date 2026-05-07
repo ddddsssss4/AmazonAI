@@ -93,22 +93,40 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
       setLastAction(null);
       setIsListening(true);
       
-      // Explicitly request microphone permission first
-      console.log('[v0] Requesting microphone permission...');
+      // Check current permission state first
+      let permissionState = 'prompt';
+      try {
+        const permissionStatus = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+        permissionState = permissionStatus.state;
+        console.log('[v0] Current microphone permission state:', permissionState);
+      } catch {
+        console.log('[v0] Could not query permission state, will request directly');
+      }
+      
+      // Request microphone permission (this will prompt user if not granted)
+      console.log('[v0] Requesting microphone access...');
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         // Stop the stream immediately - we just needed to get permission
         stream.getTracks().forEach(track => track.stop());
-        console.log('[v0] Microphone permission granted');
+        console.log('[v0] Microphone access granted');
       } catch (micError) {
-        console.error('[v0] Microphone permission error:', micError);
+        console.error('[v0] Microphone access error:', micError);
+        
         if (micError instanceof Error) {
+          // If denied, provide helpful message with instructions
           if (micError.name === 'NotAllowedError' || micError.name === 'PermissionDeniedError') {
-            throw new Error('Permission denied');
+            // Check if it's a persistent denial or just dismissed
+            const isBlocked = permissionState === 'denied';
+            if (isBlocked) {
+              throw new Error('Microphone is blocked. Click the lock/camera icon in your browser address bar and allow microphone access, then try again.');
+            } else {
+              throw new Error('Microphone access was denied. Please click the Voice Filter button again and allow microphone access when prompted.');
+            }
           } else if (micError.name === 'NotFoundError') {
-            throw new Error('NotFoundError');
+            throw new Error('No microphone found. Please connect a microphone and try again.');
           } else if (micError.name === 'NotReadableError') {
-            throw new Error('NotReadableError');
+            throw new Error('Microphone is busy. Please close other apps using the microphone and try again.');
           }
         }
         throw micError;
@@ -390,7 +408,7 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
           },
         },
 
-        // ── Event Handlers ───────────────────���─────────────────────────────
+        // ── Event Handlers ───────────────────���─────────────��───────────────
         onMessage: ({ message, source }) => {
           console.log('[v0] Agent message:', source, message);
         },
