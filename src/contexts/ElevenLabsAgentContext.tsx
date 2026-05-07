@@ -3,6 +3,7 @@ import { Conversation } from '@elevenlabs/client';
 import { getProductById, ALL_PRODUCTS } from '../data/products';
 import { type ParsedFilters, type AgentToolCallbacks } from '../hooks/useElevenLabsAgent';
 import { useCart } from './CartContext';
+import { debugLogger } from '../utils/debugLogger';
 
 // Re-export types for convenience
 export type { ParsedFilters, AgentToolCallbacks };
@@ -26,7 +27,8 @@ const AgentContext = createContext<AgentContextType | null>(null);
 const BACKEND_URL = '';
 
 // Helper function to find ALL products matching a search term (fuzzy matching)
-const findProductsByName = (searchTerm: string) => {
+const findProductsByName = (searchTerm: string | undefined | null) => {
+  if (!searchTerm || typeof searchTerm !== 'string') return [];
   const term = searchTerm.toLowerCase();
   const words = term.split(' ').filter(w => w.length > 2);
   
@@ -251,48 +253,60 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
           addToCart: async (params: { productName: string; quantity?: number }) => {
             console.log('[v0] Tool called: addToCart', params);
             
-            const matches = findProductsByName(params.productName);
-            
-            if (matches.length === 0) {
-              return { 
-                success: false, 
-                message: `Could not find a product matching "${params.productName}". Try searching for products first.` 
-              };
+            try {
+              // Guard: handle missing/unexpected param keys from ElevenLabs
+              const productName = params.productName ?? (params as any).product_name ?? (params as any).name;
+              
+              debugLogger.log({
+                action: 'addToCart',
+                level: 'info',
+                incomingParams: params,
+                result: { productName, quantity: params.quantity }
+              });
+              
+              if (!productName) {
+                const errResult = { success: false, message: 'No product name provided. Please say the product name clearly.' };
+                debugLogger.log({ action: 'addToCart', level: 'error', incomingParams: params, error: 'productName was undefined', result: errResult });
+                return errResult;
+              }
+              
+              const matches = findProductsByName(productName);
+              
+              if (matches.length === 0) {
+                const errResult = { success: false, message: `Could not find a product matching "${productName}". Try a different name or category.` };
+                debugLogger.log({ action: 'addToCart', level: 'error', incomingParams: params, error: `No products found for "${productName}"`, result: errResult });
+                return errResult;
+              }
+              
+              if (matches.length > 1) {
+                const options = matches.slice(0, 5).map(p => `${p.name} by ${p.brand} ($${p.price})`);
+                const result = { success: false, multipleMatches: true, count: matches.length, options, message: `Found ${matches.length} products matching "${productName}". Which one? Options: ${options.join(', ')}` };
+                debugLogger.log({ action: 'addToCart', level: 'warning', incomingParams: params, result });
+                return result;
+              }
+              
+              const product = matches[0];
+              const qty = params.quantity ?? 1;
+              setLastAction(`Added ${qty}x ${product.name} to cart`);
+              cartAddToCart(product, qty);
+              
+              if (callbacksRef.current.onAddToCart) {
+                callbacksRef.current.onAddToCart(product.id, qty);
+              }
+              
+              const effectivePrice = product.discount > 0
+                ? product.price * (1 - product.discount / 100)
+                : product.price;
+              
+              const successResult = { success: true, message: `Added ${qty}x ${product.name} to your cart. Item total: $${(effectivePrice * qty).toFixed(2)}. Go to /cart to checkout.` };
+              debugLogger.log({ action: 'addToCart', level: 'success', incomingParams: params, result: successResult });
+              return successResult;
+            } catch (err) {
+              const errorMsg = err instanceof Error ? err.message : String(err);
+              console.error('[v0] addToCart tool crashed:', err);
+              debugLogger.log({ action: 'addToCart', level: 'error', incomingParams: params, error: errorMsg });
+              return { success: false, message: `Error adding to cart: ${errorMsg}` };
             }
-            
-            if (matches.length > 1) {
-              const options = matches.slice(0, 5).map(p => 
-                `${p.name} by ${p.brand} ($${p.price})`
-              );
-              return {
-                success: false,
-                multipleMatches: true,
-                count: matches.length,
-                options: options,
-                message: `Found ${matches.length} products matching "${params.productName}". Which one would you like to add? Options: ${options.join(', ')}`
-              };
-            }
-            
-            const product = matches[0];
-            const qty = params.quantity ?? 1;
-            setLastAction(`Added ${qty}x ${product.name} to cart`);
-            
-            // Add directly to cart context
-            cartAddToCart(product, qty);
-            
-            // Also call optional UI callback (e.g. for showing toast in Shop)
-            if (callbacksRef.current.onAddToCart) {
-              callbacksRef.current.onAddToCart(product.id, qty);
-            }
-            
-            const effectivePrice = product.discount > 0
-              ? product.price * (1 - product.discount / 100)
-              : product.price;
-            
-            return { 
-              success: true, 
-              message: `Added ${qty}x ${product.name} to your cart. Item total: $${(effectivePrice * qty).toFixed(2)}. Go to /cart to checkout.` 
-            };
           },
 
           getProductDetails: async (params: { productName: string }) => {
@@ -347,39 +361,47 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
           navigateToProduct: async (params: { productName: string }) => {
             console.log('[v0] Tool called: navigateToProduct', params);
             
-            const matches = findProductsByName(params.productName);
-            
-            if (matches.length === 0) {
-              return { 
-                success: false, 
-                message: `Could not find a product matching "${params.productName}". Try searching for products first.` 
-              };
+            try {
+              const productName = params.productName ?? (params as any).product_name ?? (params as any).name;
+              
+              debugLogger.log({ action: 'navigateToProduct', level: 'info', incomingParams: params });
+              
+              if (!productName) {
+                const errResult = { success: false, message: 'No product name provided.' };
+                debugLogger.log({ action: 'navigateToProduct', level: 'error', incomingParams: params, error: 'productName was undefined' });
+                return errResult;
+              }
+              
+              const matches = findProductsByName(productName);
+              
+              if (matches.length === 0) {
+                const errResult = { success: false, message: `Could not find "${productName}". Try a different name.` };
+                debugLogger.log({ action: 'navigateToProduct', level: 'error', incomingParams: params, error: `No products found for "${productName}"` });
+                return errResult;
+              }
+              
+              if (matches.length > 1) {
+                const options = matches.slice(0, 5).map(p => `${p.name} by ${p.brand} ($${p.price})`);
+                const result = { success: false, multipleMatches: true, count: matches.length, options, message: `Found ${matches.length} products. Be more specific. Options: ${options.join(', ')}` };
+                debugLogger.log({ action: 'navigateToProduct', level: 'warning', incomingParams: params, result });
+                return result;
+              }
+              
+              const product = matches[0];
+              setLastAction(`Navigating to ${product.name}`);
+              if (callbacksRef.current.onNavigateToProduct) {
+                callbacksRef.current.onNavigateToProduct(product.id);
+              }
+              
+              const successResult = { success: true, message: `Opening ${product.name} details page.` };
+              debugLogger.log({ action: 'navigateToProduct', level: 'success', incomingParams: params, result: successResult });
+              return successResult;
+            } catch (err) {
+              const errorMsg = err instanceof Error ? err.message : String(err);
+              console.error('[v0] navigateToProduct tool crashed:', err);
+              debugLogger.log({ action: 'navigateToProduct', level: 'error', incomingParams: params, error: errorMsg });
+              return { success: false, message: `Error navigating: ${errorMsg}` };
             }
-            
-            if (matches.length > 1) {
-              const options = matches.slice(0, 5).map(p => 
-                `${p.name} by ${p.brand} ($${p.price})`
-              );
-              return {
-                success: false,
-                multipleMatches: true,
-                count: matches.length,
-                options: options,
-                message: `Found ${matches.length} products matching "${params.productName}". Please be more specific. Options: ${options.join(', ')}`
-              };
-            }
-            
-            const product = matches[0];
-            setLastAction(`Navigating to ${product.name}`);
-            
-            if (callbacksRef.current.onNavigateToProduct) {
-              callbacksRef.current.onNavigateToProduct(product.id);
-            }
-            
-            return { 
-              success: true, 
-              message: `Opening ${product.name} details page.` 
-            };
           },
         },
 
