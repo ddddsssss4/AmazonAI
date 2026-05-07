@@ -1,8 +1,10 @@
 import { ShoppingCart, Search, MapPin, Menu, ChevronDown, ChevronRight } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useCart } from '../contexts/CartContext';
 
 export default function Header() {
   const location = useLocation();
+  const { totalItems } = useCart();
 
   return (
     <header className="bg-white border-b-2 border-black neo-shadow sticky top-0 z-50 flex flex-col">
@@ -24,9 +26,9 @@ export default function Header() {
             <Link to="/" className="font-mono uppercase font-bold hover:text-electric-pink text-sm flex items-center gap-1">
               Sign In <ChevronRight size={16} strokeWidth={3} />
             </Link>
-            <Link to="/shop" className="relative hover:text-electric-pink flex items-center">
+            <Link to="/cart" className="relative hover:text-electric-pink flex items-center">
               <ShoppingCart size={28} strokeWidth={2.5} />
-              <span className="absolute -top-2 -right-2 bg-electric-pink text-white text-[10px] w-5 h-5 flex items-center justify-center neo-border font-bold">0</span>
+              <span className="absolute -top-2 -right-2 bg-electric-pink text-white text-[10px] w-5 h-5 flex items-center justify-center neo-border font-bold">{totalItems}</span>
             </Link>
           </div>
         </div>
@@ -77,10 +79,10 @@ export default function Header() {
           </Link>
 
           {/* Cart */}
-          <Link to="/shop" className="flex items-end gap-1 font-headline uppercase font-black hover:text-electric-pink transition-colors text-lg pt-3 px-2">
+          <Link to="/cart" className="flex items-end gap-1 font-headline uppercase font-black hover:text-electric-pink transition-colors text-lg pt-3 px-2">
             <div className="relative flex">
               <ShoppingCart size={36} strokeWidth={2.5} />
-              <span className="absolute -top-3 -right-2 bg-electric-pink text-white text-xs w-6 h-6 flex items-center justify-center neo-border font-mono font-bold">0</span>
+              <span className="absolute -top-3 -right-2 bg-electric-pink text-white text-xs w-6 h-6 flex items-center justify-center neo-border font-mono font-bold">{totalItems}</span>
             </div>
             <span className="leading-none mb-1">Cart</span>
           </Link>

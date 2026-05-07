@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useRef, useCallback, useEffect, ty
 import { Conversation } from '@elevenlabs/client';
 import { getProductById, ALL_PRODUCTS } from '../data/products';
 import { type ParsedFilters, type AgentToolCallbacks } from '../hooks/useElevenLabsAgent';
+import { useCart } from './CartContext';
 
 // Re-export types for convenience
 export type { ParsedFilters, AgentToolCallbacks };
@@ -63,6 +64,7 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<string | null>(null);
+  const { addToCart: cartAddToCart } = useCart();
   
   const conversationRef = useRef<Awaited<ReturnType<typeof Conversation.startSession>> | null>(null);
   const callbacksRef = useRef<AgentToolCallbacks>({});
@@ -275,13 +277,21 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
             const qty = params.quantity ?? 1;
             setLastAction(`Added ${qty}x ${product.name} to cart`);
             
+            // Add directly to cart context
+            cartAddToCart(product, qty);
+            
+            // Also call optional UI callback (e.g. for showing toast in Shop)
             if (callbacksRef.current.onAddToCart) {
               callbacksRef.current.onAddToCart(product.id, qty);
             }
             
+            const effectivePrice = product.discount > 0
+              ? product.price * (1 - product.discount / 100)
+              : product.price;
+            
             return { 
               success: true, 
-              message: `Added ${qty} ${product.name} to your cart. Total: $${(product.price * qty).toFixed(2)}` 
+              message: `Added ${qty}x ${product.name} to your cart. Item total: $${(effectivePrice * qty).toFixed(2)}. Go to /cart to checkout.` 
             };
           },
 

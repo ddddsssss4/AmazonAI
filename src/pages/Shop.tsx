@@ -1,10 +1,12 @@
-import { ShoppingCart, Heart, ArrowLeft, ArrowRight, Zap, Star, ChevronDown, ChevronUp } from 'lucide-react';
+import { ShoppingCart, Heart, ArrowLeft, ArrowRight, Zap, Star, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import VoiceFilterButton from '../components/VoiceFilterButton';
 import ProductHoverSpeaker from '../components/ProductHoverSpeaker';
 import { DebugPanel } from '../components/DebugPanel';
 import { type ParsedFilters } from '../hooks/useElevenLabsAgent';
+import { useCart } from '../contexts/CartContext';
+import { ALL_PRODUCTS as DATA_PRODUCTS } from '../data/products';
 
 // ── types ──────────────────────────────────────────────────────────────────────
 interface Product {
@@ -457,6 +459,8 @@ function FilterSection({ title, children, defaultOpen = true }: { title: string;
 // ── main component ────────────────────────────────────────────��────────────────
 export default function Shop() {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedColours, setSelectedColours] = useState<string[]>([]);
@@ -548,9 +552,16 @@ export default function Shop() {
   };
 
   const handleAddToCart = (productId: number, quantity: number) => {
-    // For now, just log - cart integration will be added
-    console.log(`[v0] Add to cart: Product ${productId}, Qty: ${quantity}`);
-    // TODO: Integrate with cart context when available
+    const product = DATA_PRODUCTS.find(p => p.id === productId);
+    if (!product) return;
+    addToCart(product, quantity);
+    // Show brief "added" confirmation on the card
+    setAddedIds(prev => new Set(prev).add(productId));
+    setTimeout(() => setAddedIds(prev => {
+      const next = new Set(prev);
+      next.delete(productId);
+      return next;
+    }), 1500);
   };
 
   const handleNavigateToProduct = (productId: number) => {
@@ -902,8 +913,19 @@ export default function Shop() {
                     {product.description}
                   </p>
                   <div className="flex gap-2">
-                    <button className="bg-white text-black border-2 border-black font-mono font-bold px-4 py-2.5 uppercase flex-grow text-center hover:bg-black hover:text-white transition-colors neo-button flex items-center justify-center gap-2 text-sm">
-                      <ShoppingCart size={16} /> Add to Cart
+                    <button
+                      onClick={() => handleAddToCart(product.id, 1)}
+                      className={`border-2 border-black font-mono font-bold px-4 py-2.5 uppercase flex-grow text-center transition-colors neo-button flex items-center justify-center gap-2 text-sm ${
+                        addedIds.has(product.id)
+                          ? 'bg-black text-white'
+                          : 'bg-white text-black hover:bg-black hover:text-white'
+                      }`}
+                    >
+                      {addedIds.has(product.id) ? (
+                        <><Check size={16} /> Added</>
+                      ) : (
+                        <><ShoppingCart size={16} /> Add to Cart</>
+                      )}
                     </button>
                     <button className="bg-surface-container text-black border-2 border-black p-2.5 hover:bg-electric-pink hover:text-white transition-colors neo-button flex items-center justify-center">
                       <Heart size={18} />

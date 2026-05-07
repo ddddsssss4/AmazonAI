@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ShoppingBag, ChevronDown, ArrowLeft, Star, Volume2, Loader } from 'lucide-react';
+import { ShoppingBag, ChevronDown, ArrowLeft, Star, Volume2, Loader, Check } from 'lucide-react';
 import { getProductById, ALL_PRODUCTS } from '../data/products';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useCart } from '../contexts/CartContext';
 
 export default function Product() {
   const navigate = useNavigate();
@@ -12,7 +13,15 @@ export default function Product() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColour, setSelectedColour] = useState(product.colours[0]);
   const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
   const { speak, isSpeaking, isLoading, error: speakError } = useTextToSpeech();
+  const { addToCart } = useCart();
+
+  const handleAddToCart = () => {
+    addToCart(product, quantity, selectedColour.name);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
   // pick 3 related products from the same category (excluding self)
   const related = ALL_PRODUCTS.filter(
@@ -169,9 +178,19 @@ export default function Product() {
                 >+</button>
               </div>
             </div>
-            <button className="w-full py-4 bg-black text-white font-headline text-[22px] font-black uppercase border-2 border-black neo-shadow-pink-lg neo-hover-sink-pink transition-all flex items-center justify-center gap-4 group">
-              <ShoppingBag size={26} className="group-hover:text-electric-pink transition-colors" />
-              Add to Bag
+            <button
+              onClick={handleAddToCart}
+              className={`w-full py-4 font-headline text-[22px] font-black uppercase border-2 border-black transition-all flex items-center justify-center gap-4 group ${
+                added
+                  ? 'bg-green-600 text-white'
+                  : 'bg-black text-white neo-shadow-pink-lg neo-hover-sink-pink'
+              }`}
+            >
+              {added ? (
+                <><Check size={26} /> Added to Bag</>
+              ) : (
+                <><ShoppingBag size={26} className="group-hover:text-electric-pink transition-colors" /> Add to Bag</>
+              )}
             </button>
           </div>
 
