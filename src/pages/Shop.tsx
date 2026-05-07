@@ -469,19 +469,22 @@ export default function Shop() {
 
   // ── voice handlers ─────────────────────────────────────────────────────────
   const handleVoiceFilters = (filters: ParsedFilters) => {
-    // Apply categories
-    if (filters.categories?.length) {
-      setSelectedCategories(filters.categories);
+    // Apply categories - normalize to array if needed
+    if (filters.categories) {
+      const cats = Array.isArray(filters.categories) ? filters.categories : [filters.categories];
+      if (cats.length) setSelectedCategories(cats);
     }
     
-    // Apply brands
-    if (filters.brands?.length) {
-      setSelectedBrands(filters.brands);
+    // Apply brands - normalize to array if needed
+    if (filters.brands) {
+      const brands = Array.isArray(filters.brands) ? filters.brands : [filters.brands];
+      if (brands.length) setSelectedBrands(brands);
     }
     
-    // Apply colours
-    if (filters.colours?.length) {
-      setSelectedColours(filters.colours);
+    // Apply colours - normalize to array if needed
+    if (filters.colours) {
+      const colors = Array.isArray(filters.colours) ? filters.colours : [filters.colours];
+      if (colors.length) setSelectedColours(colors);
     }
     
     // Apply price range
@@ -519,9 +522,18 @@ export default function Shop() {
     
     // Build feedback string
     const parts: string[] = [];
-    if (filters.categories?.length) parts.push(`Category: ${filters.categories.join(', ')}`);
-    if (filters.brands?.length) parts.push(`Brand: ${filters.brands.join(', ')}`);
-    if (filters.colours?.length) parts.push(`Color: ${filters.colours.join(', ')}`);
+    if (filters.categories) {
+      const cats = Array.isArray(filters.categories) ? filters.categories : [filters.categories];
+      if (cats.length) parts.push(`Category: ${cats.join(', ')}`);
+    }
+    if (filters.brands) {
+      const brands = Array.isArray(filters.brands) ? filters.brands : [filters.brands];
+      if (brands.length) parts.push(`Brand: ${brands.join(', ')}`);
+    }
+    if (filters.colours) {
+      const colors = Array.isArray(filters.colours) ? filters.colours : [filters.colours];
+      if (colors.length) parts.push(`Color: ${colors.join(', ')}`);
+    }
     if (filters.priceMin !== undefined || filters.priceMax !== undefined) {
       parts.push(`Price: $${filters.priceMin ?? 0}-$${filters.priceMax ?? '999+'}`);
     }
