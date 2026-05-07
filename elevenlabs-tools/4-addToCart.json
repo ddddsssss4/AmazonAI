@@ -1,14 +1,14 @@
 {
   "type": "client",
   "name": "addToCart",
-  "description": "Add a product to shopping cart. Use this when user says add, buy, or add to cart with a product name or ID.",
+  "description": "Add a product to shopping cart. Use this when user says add, buy, purchase, or 'add to cart' with a product name. The system will find the product by name, category, or brand.",
   "expects_response": true,
-  "response_timeout_secs": 1,
+  "response_timeout_secs": 2,
   "parameters": [
     {
-      "id": "productId",
-      "type": "number",
-      "description": "The product ID to add",
+      "id": "productName",
+      "type": "string",
+      "description": "The name, description, or identifying features of the product to add. Examples: 'mechanical keyboard', 'black dress', 'AUSK headphones'.",
       "dynamic_variable": "",
       "required": true,
       "constant_value": "",

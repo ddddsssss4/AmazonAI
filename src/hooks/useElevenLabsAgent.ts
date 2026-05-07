@@ -29,6 +29,40 @@ export interface AgentToolCallbacks {
 // Relative path — Vite proxy forwards /api/* to localhost:3001 server-side
 const BACKEND_URL = '';
 
+// Helper function to find product by name (fuzzy matching)
+const findProductByName = (searchTerm: string) => {
+  const term = searchTerm.toLowerCase();
+  
+  // Try exact/partial name match first
+  let product = ALL_PRODUCTS.find(p => 
+    p.name.toLowerCase().includes(term) ||
+    term.includes(p.name.toLowerCase())
+  );
+  
+  if (product) return product;
+  
+  // Try matching category (e.g., "keyboard" matches "Keyboards")
+  product = ALL_PRODUCTS.find(p => 
+    p.category.toLowerCase().includes(term) ||
+    term.includes(p.category.toLowerCase().replace(/s$/, ''))
+  );
+  
+  if (product) return product;
+  
+  // Try word-by-word matching
+  const words = term.split(' ').filter(w => w.length > 2);
+  product = ALL_PRODUCTS.find(p => 
+    words.some(word => 
+      p.name.toLowerCase().includes(word) ||
+      p.category.toLowerCase().includes(word) ||
+      p.brand.toLowerCase().includes(word) ||
+      p.colour?.toLowerCase().includes(word)
+    )
+  );
+  
+  return product || null;
+};
+
 export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -205,19 +239,24 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
           },
 
           // Tool: Add product to cart
-          addToCart: async (params: { productId: number; quantity?: number }) => {
+          addToCart: async (params: { productName: string; quantity?: number }) => {
             console.log('[v0] Tool called: addToCart', params);
-            const product = getProductById(params.productId);
+            
+            // Find product by name
+            const product = findProductByName(params.productName);
             
             if (!product) {
-              return { success: false, message: 'Product not found' };
+              return { 
+                success: false, 
+                message: `Could not find a product matching "${params.productName}". Try searching for products first.` 
+              };
             }
             
             const qty = params.quantity ?? 1;
             setLastAction(`Added ${qty}x ${product.name} to cart`);
             
             if (callbacksRef.current.onAddToCart) {
-              callbacksRef.current.onAddToCart(params.productId, qty);
+              callbacksRef.current.onAddToCart(product.id, qty);
             }
             
             return { 
@@ -227,12 +266,17 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
           },
 
           // Tool: Get product details
-          getProductDetails: async (params: { productId: number }) => {
+          getProductDetails: async (params: { productName: string }) => {
             console.log('[v0] Tool called: getProductDetails', params);
-            const product = getProductById(params.productId);
+            
+            // Find product by name
+            const product = findProductByName(params.productName);
             
             if (!product) {
-              return { success: false, message: 'Product not found' };
+              return { 
+                success: false, 
+                message: `Could not find a product matching "${params.productName}". Try searching for products first.` 
+              };
             }
             
             setLastAction(`Showing details for ${product.name}`);
@@ -254,18 +298,23 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
           },
 
           // Tool: Navigate to product detail page
-          navigateToProduct: async (params: { productId: number }) => {
+          navigateToProduct: async (params: { productName: string }) => {
             console.log('[v0] Tool called: navigateToProduct', params);
-            const product = getProductById(params.productId);
+            
+            // Find product by name using helper
+            const product = findProductByName(params.productName);
             
             if (!product) {
-              return { success: false, message: 'Product not found' };
+              return { 
+                success: false, 
+                message: `Could not find a product matching "${params.productName}". Try searching for products first.` 
+              };
             }
             
             setLastAction(`Navigating to ${product.name}`);
             
             if (callbacksRef.current.onNavigateToProduct) {
-              callbacksRef.current.onNavigateToProduct(params.productId);
+              callbacksRef.current.onNavigateToProduct(product.id);
             }
             
             return { 

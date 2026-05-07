@@ -1,14 +1,14 @@
 {
   "type": "client",
   "name": "navigateToProduct",
-  "description": "Navigate to a specific product details page. Use this when user wants to see details of a specific product.",
+  "description": "Navigate to a specific product details page. Use this when user wants to see details, view, or go to a specific product. The system will find the product by name, category, or brand. Examples: 'show me the mechanical keyboard', 'go to that black dress', 'view the AUSK headphones'.",
   "expects_response": true,
-  "response_timeout_secs": 1,
+  "response_timeout_secs": 2,
   "parameters": [
     {
-      "id": "productId",
-      "type": "number",
-      "description": "The ID of the product to view",
+      "id": "productName",
+      "type": "string",
+      "description": "The name, description, or identifying features of the product to navigate to. Can be product name, category, brand, or a combination. Examples: 'mechanical keyboard', 'black dress', 'AUSK headphones', 'wireless mouse'.",
       "dynamic_variable": "",
       "required": true,
       "constant_value": "",
