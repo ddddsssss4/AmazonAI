@@ -66,6 +66,8 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
   
   const conversationRef = useRef<Awaited<ReturnType<typeof Conversation.startSession>> | null>(null);
   const callbacksRef = useRef<AgentToolCallbacks>({});
+  // Track whether the disconnect was intentional (user clicked disconnect)
+  const intentionalDisconnectRef = useRef(false);
 
   // Register callbacks from components (e.g., Shop page)
   const registerCallbacks = useCallback((callbacks: AgentToolCallbacks) => {
@@ -77,9 +79,10 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const startListening = useCallback(async () => {
-    // If already connected, do nothing
+    // If already connected with an active session, do nothing
     if (conversationRef.current) {
       console.log('[v0] Already connected to agent');
+      setIsListening(true); // Re-sync UI state in case it got out of sync
       return;
     }
 
@@ -375,55 +378,65 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
         },
         
         onError: (err) => {
-          console.error('[v0] Conversation error:', err);
-          setError(typeof err === 'string' ? err : 'Conversation error');
-          setIsListening(false);
+          // Only show error as a non-fatal warning - do NOT reset connection state
+          // The session may still be alive even after a tool error
+          const errMsg = typeof err === 'string' ? err : (err as Error)?.message || 'Conversation error';
+          console.error('[v0] Conversation error (non-fatal):', errMsg);
+          setError(errMsg);
+          // Do NOT setIsListening(false) here - keep connection alive
         },
         
         onStatusChange: ({ status }) => {
-          console.log('[v0] Conversation status:', status);
+          console.log('[v0] Conversation status changed to:', status);
           if (status === 'connected') {
             setIsListening(true);
             setIsProcessing(false);
+            setError(null); // Clear any previous errors on successful connect
           } else if (status === 'disconnected') {
-            setIsListening(false);
             setIsProcessing(false);
-            conversationRef.current = null;
+            // Only reset state if this was an intentional disconnect
+            // If unintentional (network drop etc.), keep isListening true so UI knows it WAS connected
+            if (intentionalDisconnectRef.current) {
+              setIsListening(false);
+              conversationRef.current = null;
+              intentionalDisconnectRef.current = false;
+            } else {
+              // Unintentional disconnect - show error but keep state so user knows
+              setIsListening(false);
+              conversationRef.current = null;
+              setError('Connection lost. Click Voice Filter to reconnect.');
+            }
           }
         },
         
         onModeChange: ({ mode }) => {
-          console.log('[v0] Mode changed:', mode);
           setIsProcessing(mode === 'thinking' || mode === 'speaking');
         },
       });
 
       conversationRef.current = conversation;
     } catch (err) {
+      // Startup failed - no session was established, safe to reset all state
       let message = 'Failed to start voice session';
       
       if (err instanceof Error) {
         message = err.message;
-        
-        if (message.includes('Permission denied') || message.includes('NotAllowedError')) {
-          message = 'Microphone permission denied. Please allow microphone access in your browser settings.';
-        } else if (message.includes('NotFoundError')) {
-          message = 'No microphone found. Please check your device has a working microphone.';
-        } else if (message.includes('NotReadableError')) {
-          message = 'Microphone is in use by another application. Please close other apps using the microphone.';
-        }
       }
       
       setError(message);
       setIsListening(false);
       setIsProcessing(false);
+      conversationRef.current = null;
       console.error('[v0] Error starting conversation:', err);
     }
   }, []);
 
   const stopListening = useCallback(async () => {
     try {
+      // Mark as intentional so onStatusChange knows not to show "connection lost" error
+      intentionalDisconnectRef.current = true;
       setIsListening(false);
+      setError(null);
       if (conversationRef.current) {
         console.log('[v0] Ending ElevenLabs conversation session...');
         await conversationRef.current.endSession();
@@ -431,6 +444,7 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
       }
     } catch (err) {
       console.error('[v0] Error stopping conversation:', err);
+      intentionalDisconnectRef.current = false;
     } finally {
       setIsProcessing(false);
     }

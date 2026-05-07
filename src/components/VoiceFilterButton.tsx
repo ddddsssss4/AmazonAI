@@ -47,6 +47,7 @@ export default function VoiceFilterButton({
     if (isListening) {
       await stopListening();
     } else {
+      // Always clear error and start fresh
       clearError();
       await startListening();
     }
