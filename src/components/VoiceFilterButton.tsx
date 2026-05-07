@@ -124,10 +124,28 @@ export default function VoiceFilterButton({
         </div>
       )}
       
-      {/* Error Display */}
+      {/* Error Display with Retry Button */}
       {error && (
         <div className="bg-red-50 border-2 border-red-300 p-3 font-mono text-sm text-red-700">
-          {error}
+          <p className="mb-2">{error}</p>
+          {error.toLowerCase().includes('microphone') && (
+            <button
+              onClick={async () => {
+                try {
+                  // Force request microphone permission again
+                  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                  stream.getTracks().forEach(track => track.stop());
+                  // If successful, try starting the listener
+                  await startListening();
+                } catch (e) {
+                  console.error('[v0] Retry permission failed:', e);
+                }
+              }}
+              className="w-full mt-2 px-3 py-2 bg-red-600 text-white font-bold text-xs uppercase hover:bg-red-700 transition-colors"
+            >
+              Request Microphone Permission
+            </button>
+          )}
         </div>
       )}
       
