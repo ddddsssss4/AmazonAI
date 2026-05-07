@@ -33,11 +33,11 @@ export default function ProductHoverSpeaker({
     <div className="relative">
       {children}
 
-      {/* Always visible speaker button */}
+      {/* Always visible speaker button - positioned bottom-right to avoid badge overlap */}
       <button
         onClick={handleSpeak}
         disabled={isLoading}
-        className={`absolute top-4 right-4 z-20 p-2 neo-border transition-all duration-200 ${
+        className={`absolute bottom-4 right-4 z-20 p-2 neo-border transition-all duration-200 ${
           isSpeaking
             ? 'bg-electric-pink text-white neo-shadow'
             : isLoading
