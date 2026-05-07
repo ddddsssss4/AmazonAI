@@ -80,9 +80,47 @@ export default function VoiceFilterButton({
       
       {/* Last Action Feedback */}
       {lastAction && (
-        <div className="bg-green-50 border-2 border-green-400 p-2 font-mono text-xs text-green-800 flex items-center gap-2">
-          <Zap size={14} className="text-green-600" />
-          {lastAction}
+        <div className="bg-green-50 border-2 border-green-400 p-2 font-mono text-xs text-green-800">
+          <div className="flex items-center gap-2 mb-1">
+            <Zap size={14} className="text-green-600 flex-shrink-0" />
+            <span className="font-bold">Filters Applied</span>
+          </div>
+          <div className="pl-5 space-y-0.5">
+            {(() => {
+              try {
+                // Parse the JSON from "Filtering: {...}"
+                const jsonStr = lastAction.replace('Filtering: ', '');
+                const filters = JSON.parse(jsonStr);
+                const items: string[] = [];
+                
+                if (filters.categories) {
+                  const cats = Array.isArray(filters.categories) ? filters.categories : [filters.categories];
+                  items.push(`Category: ${cats.join(', ')}`);
+                }
+                if (filters.brands) {
+                  const brands = Array.isArray(filters.brands) ? filters.brands : [filters.brands];
+                  items.push(`Brand: ${brands.join(', ')}`);
+                }
+                if (filters.colours) {
+                  const colors = Array.isArray(filters.colours) ? filters.colours : [filters.colours];
+                  items.push(`Color: ${colors.join(', ')}`);
+                }
+                if (filters.priceMin !== undefined || filters.priceMax !== undefined) {
+                  const min = filters.priceMin ?? 0;
+                  const max = filters.priceMax ?? '∞';
+                  items.push(`Price: $${min} - $${max}`);
+                }
+                if (filters.freeShipping) items.push('Free Shipping');
+                if (filters.minRating) items.push(`Rating: ${filters.minRating}+ stars`);
+                
+                return items.length > 0 
+                  ? items.map((item, i) => <div key={i}>{item}</div>)
+                  : <div>{lastAction}</div>;
+              } catch {
+                return <div>{lastAction}</div>;
+              }
+            })()}
+          </div>
         </div>
       )}
       
