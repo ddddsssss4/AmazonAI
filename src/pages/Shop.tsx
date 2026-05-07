@@ -469,65 +469,11 @@ export default function Shop() {
   const [voiceFiltersApplied, setVoiceFiltersApplied] = useState<string>('');
 
   // ── voice handlers ─────────────────────────────────────────────────────────
-  
-  // Map AI keywords to actual product categories
-  const mapToCategory = (input: string): string[] => {
-    const lowerInput = input.toLowerCase();
-    
-    // Direct matches to actual categories
-    const categoryMap: Record<string, string[]> = {
-      // Tech categories
-      'keyboard': ['Keyboards'],
-      'keyboards': ['Keyboards'],
-      'audio': ['Audio'],
-      'headphones': ['Audio'],
-      'earphones': ['Audio'],
-      'power': ['Power'],
-      'charger': ['Power'],
-      'battery': ['Power'],
-      'mouse': ['Mice'],
-      'mice': ['Mice'],
-      'tech': ['Keyboards', 'Audio', 'Power', 'Mice'], // Tech = all tech categories
-      
-      // Clothing categories
-      't-shirt': ['T-Shirts'],
-      't-shirts': ['T-Shirts'],
-      'tshirt': ['T-Shirts'],
-      'tshirts': ['T-Shirts'],
-      'shirt': ['T-Shirts'],
-      'dress': ['Dresses'],
-      'dresses': ['Dresses'],
-      'kurta': ['Kurtas'],
-      'kurtas': ['Kurtas'],
-      'sweatshirt': ['Sweatshirts'],
-      'sweatshirts': ['Sweatshirts'],
-      'hoodie': ['Sweatshirts'],
-      'jacket': ['Leather Jackets'],
-      'jackets': ['Leather Jackets'],
-      'leather jacket': ['Leather Jackets'],
-      'leather jackets': ['Leather Jackets'],
-      'clothing': ['T-Shirts', 'Dresses', 'Kurtas', 'Sweatshirts', 'Leather Jackets'], // Clothing = all clothing
-    };
-    
-    // Check for exact or partial match
-    for (const [key, categories] of Object.entries(categoryMap)) {
-      if (lowerInput.includes(key)) {
-        return categories;
-      }
-    }
-    
-    // Return as-is if no mapping found (might be exact category name)
-    return [input];
-  };
-  
   const handleVoiceFilters = (filters: ParsedFilters) => {
-    // Apply categories - normalize to array and map to actual categories
+    // Apply categories - normalize to array (AI now sends exact category names)
     if (filters.categories) {
-      const inputCats = Array.isArray(filters.categories) ? filters.categories : [filters.categories];
-      const mappedCats = inputCats.flatMap(cat => mapToCategory(cat));
-      // Remove duplicates
-      const uniqueCats = [...new Set(mappedCats)];
-      if (uniqueCats.length) setSelectedCategories(uniqueCats);
+      const cats = Array.isArray(filters.categories) ? filters.categories : [filters.categories];
+      if (cats.length) setSelectedCategories(cats);
     }
     
     // Apply brands - normalize to array if needed
