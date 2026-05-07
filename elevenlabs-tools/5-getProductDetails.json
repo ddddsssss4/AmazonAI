@@ -1,0 +1,28 @@
+{
+  "type": "client",
+  "name": "getProductDetails",
+  "description": "Get detailed information about a specific product including price, description, specs, and reviews.",
+  "expects_response": true,
+  "response_timeout_secs": 1,
+  "parameters": [
+    {
+      "id": "productId",
+      "type": "number",
+      "description": "The ID of the product to get details for",
+      "dynamic_variable": "",
+      "required": true,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    }
+  ],
+  "dynamic_variables": {
+    "dynamic_variable_placeholders": {}
+  },
+  "assignments": [],
+  "disable_interruptions": true,
+  "pre_tool_speech": "auto",
+  "tool_call_sound": null,
+  "tool_call_sound_behavior": "auto",
+  "execution_mode": "immediate",
+  "response_mocks": []
+}

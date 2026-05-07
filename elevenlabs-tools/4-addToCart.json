@@ -1,0 +1,37 @@
+{
+  "type": "client",
+  "name": "addToCart",
+  "description": "Add a product to shopping cart. Use this when user says add, buy, or add to cart with a product name or ID.",
+  "expects_response": true,
+  "response_timeout_secs": 1,
+  "parameters": [
+    {
+      "id": "productId",
+      "type": "number",
+      "description": "The product ID to add",
+      "dynamic_variable": "",
+      "required": true,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "quantity",
+      "type": "number",
+      "description": "Quantity to add (default: 1)",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    }
+  ],
+  "dynamic_variables": {
+    "dynamic_variable_placeholders": {}
+  },
+  "assignments": [],
+  "disable_interruptions": true,
+  "pre_tool_speech": "auto",
+  "tool_call_sound": null,
+  "tool_call_sound_behavior": "auto",
+  "execution_mode": "immediate",
+  "response_mocks": []
+}
