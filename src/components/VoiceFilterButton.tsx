@@ -1,4 +1,4 @@
-import { Mic, Square, Zap } from 'lucide-react';
+import { Mic, MicOff, Zap } from 'lucide-react';
 import { useElevenLabsAgent, type ParsedFilters, type AgentToolCallbacks } from '../hooks/useElevenLabsAgent';
 
 interface VoiceFilterButtonProps {
@@ -26,44 +26,33 @@ export default function VoiceFilterButton({
 
   const { isListening, isProcessing, error, lastAction, startListening, stopListening } = useElevenLabsAgent(callbacks);
 
-  const handleMouseDown = async () => {
-    await startListening();
-  };
-
-  const handleMouseUp = async () => {
-    await stopListening();
-  };
-
-  const handleTouchStart = async () => {
-    await startListening();
-  };
-
-  const handleTouchEnd = async () => {
-    await stopListening();
+  const handleToggle = async () => {
+    if (isListening) {
+      await stopListening();
+    } else {
+      await startListening();
+    }
   };
 
   return (
     <div className="space-y-3">
+      {/* Main Toggle Button */}
       <button
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        onClick={handleToggle}
         disabled={isProcessing}
         className={`w-full font-mono font-bold px-4 py-3 uppercase border-2 border-black flex items-center justify-center gap-2 transition-all duration-200 ${
           isListening
-            ? 'bg-electric-pink text-white border-electric-pink neo-shadow-lg scale-105'
+            ? 'bg-electric-pink text-white border-electric-pink neo-shadow-lg'
             : isProcessing
               ? 'bg-gray-300 text-black border-gray-300 cursor-wait'
               : 'bg-white text-black hover:bg-black hover:text-white neo-button'
         }`}
-        title={isListening ? 'Release to stop listening' : 'Press and hold to speak'}
+        title={isListening ? 'Click to disconnect' : 'Click to start voice assistant'}
       >
         {isListening ? (
           <>
-            <Square size={20} fill="currentColor" />
-            Listening...
+            <Mic size={20} className="animate-pulse" />
+            Connected - Listening
           </>
         ) : isProcessing ? (
           <>
@@ -77,6 +66,17 @@ export default function VoiceFilterButton({
           </>
         )}
       </button>
+
+      {/* Disconnect Button - only shown when connected */}
+      {isListening && (
+        <button
+          onClick={stopListening}
+          className="w-full font-mono font-bold px-4 py-2 uppercase border-2 border-red-500 bg-red-50 text-red-600 flex items-center justify-center gap-2 hover:bg-red-500 hover:text-white transition-all duration-200"
+        >
+          <MicOff size={18} />
+          Disconnect
+        </button>
+      )}
       
       {/* Last Action Feedback */}
       {lastAction && (
@@ -149,11 +149,11 @@ export default function VoiceFilterButton({
         </div>
       )}
       
-      {/* Help Text */}
+      {/* Status Text */}
       <p className="font-mono text-xs text-gray-500 text-center leading-relaxed">
         {isListening 
-          ? 'Listening... speak your request'
-          : 'Hold to speak your filter preferences'}
+          ? 'Voice assistant connected. Speak naturally to filter products.'
+          : 'Click to connect voice assistant'}
       </p>
 
       {/* Example Commands */}
