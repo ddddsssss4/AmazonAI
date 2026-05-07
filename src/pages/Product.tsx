@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ShoppingBag, ChevronDown, ArrowLeft, Star, Volume2, Loader, Check } from 'lucide-react';
 import { getProductById, ALL_PRODUCTS } from '../data/products';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
 import { useCart } from '../contexts/CartContext';
+import { useAgent } from '../contexts/ElevenLabsAgentContext';
 
 export default function Product() {
   const navigate = useNavigate();
@@ -16,6 +17,13 @@ export default function Product() {
   const [added, setAdded] = useState(false);
   const { speak, isSpeaking, isLoading, error: speakError } = useTextToSpeech();
   const { addToCart } = useCart();
+  const { setCurrentProduct } = useAgent();
+
+  // Tell the voice agent which product is being viewed
+  useEffect(() => {
+    setCurrentProduct(product);
+    return () => setCurrentProduct(null); // clear on unmount
+  }, [product, setCurrentProduct]);
 
   const handleAddToCart = () => {
     addToCart(product, quantity, selectedColour.name);

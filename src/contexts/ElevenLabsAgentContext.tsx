@@ -20,11 +20,20 @@ interface AgentContextType extends AgentState {
   stopListening: () => Promise<void>;
   registerCallbacks: (callbacks: AgentToolCallbacks) => void;
   clearError: () => void;
+  setCurrentProduct: (product: any | null) => void;
 }
 
 const AgentContext = createContext<AgentContextType | null>(null);
 
 const BACKEND_URL = '';
+
+// Words that mean "the current product" - resolve to currentProductRef
+const PRONOUN_TERMS = ['this', 'it', 'current', 'this one', 'the current one', 'this product', 'it to'];
+
+const isPronoun = (term: string | undefined | null): boolean => {
+  if (!term) return true; // missing = also means current
+  return PRONOUN_TERMS.some(p => term.toLowerCase().trim() === p);
+};
 
 // Helper function to find ALL products matching a search term (fuzzy matching)
 const findProductsByName = (searchTerm: string | undefined | null) => {
@@ -70,8 +79,14 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
   
   const conversationRef = useRef<Awaited<ReturnType<typeof Conversation.startSession>> | null>(null);
   const callbacksRef = useRef<AgentToolCallbacks>({});
-  // Track whether the disconnect was intentional (user clicked disconnect)
   const intentionalDisconnectRef = useRef(false);
+  // Holds the product currently being viewed so voice commands like "add this" work
+  const currentProductRef = useRef<any | null>(null);
+
+  const setCurrentProduct = useCallback((product: any | null) => {
+    currentProductRef.current = product;
+    console.log('[v0] Current product set to:', product?.name ?? 'none');
+  }, []);
 
   // Register callbacks from components (e.g., Shop page)
   const registerCallbacks = useCallback((callbacks: AgentToolCallbacks) => {
@@ -254,51 +269,49 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
             console.log('[v0] Tool called: addToCart', params);
             
             try {
-              // Guard: handle missing/unexpected param keys from ElevenLabs
-              const productName = params.productName ?? (params as any).product_name ?? (params as any).name;
+              const rawName = params.productName ?? (params as any).product_name ?? (params as any).name;
+              const qty = params.quantity ?? 1;
               
-              debugLogger.log({
-                action: 'addToCart',
-                level: 'info',
-                incomingParams: params,
-                result: { productName, quantity: params.quantity }
-              });
+              debugLogger.log({ action: 'addToCart', level: 'info', incomingParams: params });
               
-              if (!productName) {
-                const errResult = { success: false, message: 'No product name provided. Please say the product name clearly.' };
-                debugLogger.log({ action: 'addToCart', level: 'error', incomingParams: params, error: 'productName was undefined', result: errResult });
-                return errResult;
+              // Resolve pronouns to the currently viewed product
+              if (isPronoun(rawName)) {
+                const current = currentProductRef.current;
+                if (!current) {
+                  const errResult = { success: false, message: 'No product is currently being viewed. Please navigate to a product page first or say the product name.' };
+                  debugLogger.log({ action: 'addToCart', level: 'error', incomingParams: params, error: 'No current product in context', result: errResult });
+                  return errResult;
+                }
+                setLastAction(`Added ${qty}x ${current.name} to cart`);
+                cartAddToCart(current, qty);
+                if (callbacksRef.current.onAddToCart) callbacksRef.current.onAddToCart(current.id, qty);
+                const effectivePrice = current.discount > 0 ? current.price * (1 - current.discount / 100) : current.price;
+                const successResult = { success: true, message: `Added ${qty}x ${current.name} to your cart. Item total: $${(effectivePrice * qty).toFixed(2)}.` };
+                debugLogger.log({ action: 'addToCart', level: 'success', incomingParams: params, result: successResult });
+                return successResult;
               }
               
-              const matches = findProductsByName(productName);
+              const matches = findProductsByName(rawName);
               
               if (matches.length === 0) {
-                const errResult = { success: false, message: `Could not find a product matching "${productName}". Try a different name or category.` };
-                debugLogger.log({ action: 'addToCart', level: 'error', incomingParams: params, error: `No products found for "${productName}"`, result: errResult });
+                const errResult = { success: false, message: `Could not find "${rawName}". Try a different name or category.` };
+                debugLogger.log({ action: 'addToCart', level: 'error', incomingParams: params, error: `No products found for "${rawName}"`, result: errResult });
                 return errResult;
               }
               
               if (matches.length > 1) {
                 const options = matches.slice(0, 5).map(p => `${p.name} by ${p.brand} ($${p.price})`);
-                const result = { success: false, multipleMatches: true, count: matches.length, options, message: `Found ${matches.length} products matching "${productName}". Which one? Options: ${options.join(', ')}` };
+                const result = { success: false, multipleMatches: true, count: matches.length, options, message: `Found ${matches.length} products matching "${rawName}". Which one? Options: ${options.join(', ')}` };
                 debugLogger.log({ action: 'addToCart', level: 'warning', incomingParams: params, result });
                 return result;
               }
               
               const product = matches[0];
-              const qty = params.quantity ?? 1;
               setLastAction(`Added ${qty}x ${product.name} to cart`);
               cartAddToCart(product, qty);
-              
-              if (callbacksRef.current.onAddToCart) {
-                callbacksRef.current.onAddToCart(product.id, qty);
-              }
-              
-              const effectivePrice = product.discount > 0
-                ? product.price * (1 - product.discount / 100)
-                : product.price;
-              
-              const successResult = { success: true, message: `Added ${qty}x ${product.name} to your cart. Item total: $${(effectivePrice * qty).toFixed(2)}. Go to /cart to checkout.` };
+              if (callbacksRef.current.onAddToCart) callbacksRef.current.onAddToCart(product.id, qty);
+              const effectivePrice = product.discount > 0 ? product.price * (1 - product.discount / 100) : product.price;
+              const successResult = { success: true, message: `Added ${qty}x ${product.name} to your cart. Item total: $${(effectivePrice * qty).toFixed(2)}.` };
               debugLogger.log({ action: 'addToCart', level: 'success', incomingParams: params, result: successResult });
               return successResult;
             } catch (err) {
@@ -365,6 +378,21 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
               const productName = params.productName ?? (params as any).product_name ?? (params as any).name;
               
               debugLogger.log({ action: 'navigateToProduct', level: 'info', incomingParams: params });
+              
+              // Resolve pronouns — if on a product page already, stay/refresh
+              if (isPronoun(productName)) {
+                const current = currentProductRef.current;
+                if (!current) {
+                  const errResult = { success: false, message: 'No product is currently being viewed. Please say the product name.' };
+                  debugLogger.log({ action: 'navigateToProduct', level: 'error', incomingParams: params, error: 'No current product in context' });
+                  return errResult;
+                }
+                setLastAction(`Navigating to ${current.name}`);
+                if (callbacksRef.current.onNavigateToProduct) callbacksRef.current.onNavigateToProduct(current.id);
+                const successResult = { success: true, message: `Opening ${current.name} details page.` };
+                debugLogger.log({ action: 'navigateToProduct', level: 'success', incomingParams: params, result: successResult });
+                return successResult;
+              }
               
               if (!productName) {
                 const errResult = { success: false, message: 'No product name provided.' };
@@ -502,6 +530,7 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
         stopListening,
         registerCallbacks,
         clearError,
+        setCurrentProduct,
       }}
     >
       {children}
