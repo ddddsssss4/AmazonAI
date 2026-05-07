@@ -91,7 +91,7 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
         clientTools: {
           // Tool: Apply shopping filters
           applyFilters: async (params: ParsedFilters) => {
-            const debugData = {
+            const debugData: any = {
               timestamp: new Date().toISOString(),
               action: 'applyFilters',
               incomingParams: JSON.parse(JSON.stringify(params)),
@@ -100,12 +100,42 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
             console.log('[v0] Tool called: applyFilters', params);
             setLastAction(`Filtering: ${JSON.stringify(params)}`);
             
+            // Filter products DIRECTLY using incoming params (React state is async!)
+            const categories = params.categories 
+              ? (Array.isArray(params.categories) ? params.categories : [params.categories])
+              : [];
+            const brands = params.brands
+              ? (Array.isArray(params.brands) ? params.brands : [params.brands])
+              : [];
+            const colours = params.colours
+              ? (Array.isArray(params.colours) ? params.colours : [params.colours])
+              : [];
+            
+            const filteredProducts = ALL_PRODUCTS.filter(p => {
+              if (categories.length && !categories.includes(p.category)) return false;
+              if (brands.length && !brands.includes(p.brand)) return false;
+              if (colours.length && !colours.includes(p.colour)) return false;
+              if (params.freeShipping && !p.freeShipping) return false;
+              if (params.minRating && p.rating < params.minRating) return false;
+              if (params.minDiscount && p.discount < params.minDiscount) return false;
+              if (params.priceMin !== undefined && p.price < params.priceMin) return false;
+              if (params.priceMax !== undefined && p.price > params.priceMax) return false;
+              return true;
+            });
+            
+            const count = filteredProducts.length;
+            
+            console.log('[v0] Direct filter result:', { 
+              categories, brands, colours, 
+              priceMin: params.priceMin, 
+              priceMax: params.priceMax,
+              resultCount: count 
+            });
+            
+            // Now update React state for UI (this is async but we already have our result)
             if (callbacksRef.current.onFiltersDetected) {
               callbacksRef.current.onFiltersDetected(params);
             }
-            
-            const filteredProducts = callbacksRef.current.getFilteredProducts?.() ?? [];
-            const count = filteredProducts.length;
             
             debugData.filteredProductCount = count;
             debugData.filteredProducts = filteredProducts.slice(0, 10).map((p: any) => ({
