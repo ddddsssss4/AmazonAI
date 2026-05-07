@@ -1,6 +1,18 @@
 import express from 'express';
 import cors from 'cors';
 import crypto from 'crypto';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Load .env from server directory first, then fallback to project root
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Try server/.env first
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+// Then try project root .env (will only load vars not already set)
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const app = express();
 const PORT = 3001;
@@ -9,8 +21,8 @@ const PORT = 3001;
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 const ELEVENLABS_AGENT_ID = process.env.ELEVENLABS_AGENT_ID;
 
-// Middleware
-app.use(cors());
+// Middleware - allow all origins (dev server)
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 // Health check
@@ -69,7 +81,7 @@ app.post('/api/elevenlabs/signed-url', async (req, res) => {
 // Text-to-speech endpoint
 app.post('/api/elevenlabs/tts', async (req, res) => {
   try {
-    const { text, voiceId = 'cgSgspJ2msn5ssLCgxWa' } = req.body;
+    const { text, voiceId = 'JBFqnCBsd6RMkjVDRZzb' } = req.body;
 
     if (!text) {
       return res.status(400).json({ error: 'Text is required' });
@@ -89,7 +101,7 @@ app.post('/api/elevenlabs/tts', async (req, res) => {
       },
       body: JSON.stringify({
         text: text,
-        model_id: 'eleven_monolingual_v1',
+        model_id: 'eleven_turbo_v2_5',
         voice_settings: {
           stability: 0.5,
           similarity_boost: 0.75

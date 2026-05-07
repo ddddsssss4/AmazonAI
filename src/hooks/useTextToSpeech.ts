@@ -1,14 +1,15 @@
 import { useState, useRef, useCallback } from 'react';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+// Relative path — Vite proxy forwards /api/* to localhost:3001 server-side (no mixed content issue)
+const BACKEND_URL = '';
 
 export interface TextToSpeechOptions {
   voiceId?: string; // Voice ID from ElevenLabs
 }
 
 export function useTextToSpeech(options: TextToSpeechOptions = {}) {
-  const { voiceId = 'cgSgspJ2msn5ssLCgxWa' } = options;
-  
+  const { voiceId = 'JBFqnCBsd6RMkjVDRZzb' } = options;
+
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

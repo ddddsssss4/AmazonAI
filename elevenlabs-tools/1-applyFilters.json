@@ -1,0 +1,100 @@
+{
+  "type": "client",
+  "name": "applyFilters",
+  "description": "Apply filters to find products. Use this when the user asks for specific products, prices, brands, colors, or other product attributes.",
+  "expects_response": true,
+  "response_timeout_secs": 1,
+  "parameters": [
+    {
+      "id": "categories",
+      "type": "string",
+      "description": "Product categories to filter by (e.g., Clothing, Tech, Home)",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "priceMin",
+      "type": "number",
+      "description": "Minimum price in dollars",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "priceMax",
+      "type": "number",
+      "description": "Maximum price in dollars",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "brands",
+      "type": "string",
+      "description": "Brand names to filter by (e.g., Apple, Sony, Nike)",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "colours",
+      "type": "string",
+      "description": "Color options (e.g., Black, White, Red, Blue)",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "freeShipping",
+      "type": "boolean",
+      "description": "Only show products with free shipping",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "minRating",
+      "type": "number",
+      "description": "Minimum star rating (1-5)",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "minDiscount",
+      "type": "number",
+      "description": "Minimum discount percentage",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "sortBy",
+      "type": "string",
+      "description": "Sort option: price_low, price_high, rating, discount",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    }
+  ],
+  "dynamic_variables": {
+    "dynamic_variable_placeholders": {}
+  },
+  "assignments": [],
+  "disable_interruptions": true,
+  "pre_tool_speech": "auto",
+  "tool_call_sound": null,
+  "tool_call_sound_behavior": "auto",
+  "execution_mode": "immediate",
+  "response_mocks": []
+}

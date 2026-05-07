@@ -1,190 +1,232 @@
 import { useState, useRef, useCallback } from 'react';
+import { Conversation } from '@elevenlabs/client';
+import { getProductById, ALL_PRODUCTS } from '../data/products';
 
+// ── Expanded Filter Interface ──────────────────────────────────────────────────
 export interface ParsedFilters {
-  category?: string[];
-  priceRange?: string;
-  fabric?: string;
-  color?: string;
+  categories?: string[];
+  priceMin?: number;
+  priceMax?: number;
+  brands?: string[];
+  colours?: string[];
+  freeShipping?: boolean;
+  minRating?: number;
+  minDiscount?: number;
+  sortBy?: 'price_low' | 'price_high' | 'rating' | 'discount';
+  searchQuery?: string;
 }
 
-// Backend server is running on port 3001
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+// ── Tool Callbacks Interface ───────────────────────────────────────────────────
+export interface AgentToolCallbacks {
+  onFiltersDetected?: (filters: ParsedFilters) => void;
+  onClearFilters?: () => void;
+  onAddToCart?: (productId: number, quantity: number) => void;
+  onNavigateToProduct?: (productId: number) => void;
+  getFilteredProductCount?: () => number;
+}
 
-export function useElevenLabsAgent() {
+// Relative path — Vite proxy forwards /api/* to localhost:3001 server-side
+const BACKEND_URL = '';
+
+export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const streamRef = useRef<MediaStream | null>(null);
+  const [lastAction, setLastAction] = useState<string | null>(null);
+  const conversationRef = useRef<Awaited<ReturnType<typeof Conversation.startSession>> | null>(null);
+  const callbacksRef = useRef(callbacks);
+  
+  // Keep callbacks ref updated
+  callbacksRef.current = callbacks;
 
   const startListening = useCallback(async () => {
     try {
       setError(null);
-      audioChunksRef.current = [];
-
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      streamRef.current = stream;
-
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-
-      mediaRecorder.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
-      };
-
-      mediaRecorder.start();
+      setLastAction(null);
       setIsListening(true);
+      console.log('[v0] Requesting signed URL from backend...');
+
+      // Fetch signed URL from backend
+      const response = await fetch(`${BACKEND_URL}/api/elevenlabs/signed-url`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Failed to get signed URL: ${text}`);
+      }
+
+      const { signedUrl } = await response.json();
+      console.log('[v0] Signed URL received, starting ElevenLabs conversation with client tools...');
+
+      // Start ElevenLabs conversation with client tools
+      const conversation = await Conversation.startSession({
+        signedUrl,
+        
+        // ── Client Tools Registration ──────────────────────────────────────
+        clientTools: {
+          // Tool: Apply shopping filters
+          applyFilters: async (params: ParsedFilters) => {
+            console.log('[v0] Tool called: applyFilters', params);
+            setLastAction(`Filtering: ${JSON.stringify(params)}`);
+            
+            if (callbacksRef.current.onFiltersDetected) {
+              callbacksRef.current.onFiltersDetected(params);
+            }
+            
+            const count = callbacksRef.current.getFilteredProductCount?.() ?? ALL_PRODUCTS.length;
+            return { 
+              success: true, 
+              message: `Filters applied. Found ${count} products matching your criteria.` 
+            };
+          },
+
+          // Tool: Clear all filters
+          clearFilters: async () => {
+            console.log('[v0] Tool called: clearFilters');
+            setLastAction('Cleared all filters');
+            
+            if (callbacksRef.current.onClearFilters) {
+              callbacksRef.current.onClearFilters();
+            }
+            
+            return { 
+              success: true, 
+              message: `All filters cleared. Showing all ${ALL_PRODUCTS.length} products.` 
+            };
+          },
+
+          // Tool: Add product to cart
+          addToCart: async (params: { productId: number; quantity?: number }) => {
+            console.log('[v0] Tool called: addToCart', params);
+            const product = getProductById(params.productId);
+            
+            if (!product) {
+              return { success: false, message: 'Product not found' };
+            }
+            
+            const qty = params.quantity ?? 1;
+            setLastAction(`Added ${qty}x ${product.name} to cart`);
+            
+            if (callbacksRef.current.onAddToCart) {
+              callbacksRef.current.onAddToCart(params.productId, qty);
+            }
+            
+            return { 
+              success: true, 
+              message: `Added ${qty} ${product.name} to your cart. Total: $${(product.price * qty).toFixed(2)}` 
+            };
+          },
+
+          // Tool: Get product details
+          getProductDetails: async (params: { productId: number }) => {
+            console.log('[v0] Tool called: getProductDetails', params);
+            const product = getProductById(params.productId);
+            
+            if (!product) {
+              return { success: false, message: 'Product not found' };
+            }
+            
+            setLastAction(`Showing details for ${product.name}`);
+            
+            return { 
+              success: true, 
+              product: {
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                description: product.description,
+                rating: product.rating,
+                brand: product.brand,
+                category: product.category,
+                freeShipping: product.freeShipping,
+                discount: product.discount,
+              }
+            };
+          },
+
+          // Tool: Navigate to product detail page
+          navigateToProduct: async (params: { productId: number }) => {
+            console.log('[v0] Tool called: navigateToProduct', params);
+            const product = getProductById(params.productId);
+            
+            if (!product) {
+              return { success: false, message: 'Product not found' };
+            }
+            
+            setLastAction(`Navigating to ${product.name}`);
+            
+            if (callbacksRef.current.onNavigateToProduct) {
+              callbacksRef.current.onNavigateToProduct(params.productId);
+            }
+            
+            return { 
+              success: true, 
+              message: `Opening ${product.name} details page.` 
+            };
+          },
+        },
+
+        // ── Event Handlers ─────────────────────────────────────────────────
+        onMessage: ({ message, source }) => {
+          console.log('[v0] Agent message:', source, message);
+        },
+        
+        onError: (err) => {
+          console.error('[v0] Conversation error:', err);
+          setError(typeof err === 'string' ? err : 'Conversation error');
+          setIsListening(false);
+        },
+        
+        onStatusChange: ({ status }) => {
+          console.log('[v0] Conversation status:', status);
+          if (status === 'connected') {
+            setIsListening(true);
+            setIsProcessing(false);
+          } else if (status === 'disconnected') {
+            setIsListening(false);
+            setIsProcessing(false);
+          }
+        },
+        
+        onModeChange: ({ mode }) => {
+          console.log('[v0] Mode changed:', mode);
+          setIsProcessing(mode === 'thinking' || mode === 'speaking');
+        },
+      });
+
+      conversationRef.current = conversation;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to start recording';
+      const message = err instanceof Error ? err.message : 'Failed to start voice session';
       setError(message);
-      console.error('[v0] Error starting recording:', err);
+      setIsListening(false);
+      setIsProcessing(false);
+      console.error('[v0] Error starting conversation:', err);
     }
   }, []);
 
-  const stopListening = useCallback(
-    async (onFiltersDetected?: (filters: ParsedFilters) => void) => {
-      try {
-        setIsListening(false);
-        setIsProcessing(true);
-
-        if (!mediaRecorderRef.current) {
-          throw new Error('No recorder found');
-        }
-
-        await new Promise((resolve) => {
-          mediaRecorderRef.current!.onstop = resolve;
-          mediaRecorderRef.current!.stop();
-        });
-
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach((track) => track.stop());
-        }
-
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        console.log('[v0] Audio blob created:', audioBlob.size, 'bytes');
-
-        // Get signed URL from backend
-        const signedUrlResponse = await fetch(`${BACKEND_URL}/api/elevenlabs/signed-url`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!signedUrlResponse.ok) {
-          const errorData = await signedUrlResponse.json();
-          throw new Error(`Failed to get signed URL: ${errorData.error}`);
-        }
-
-        const { signedUrl } = await signedUrlResponse.json();
-        console.log('[v0] Signed URL received from backend');
-
-        // Convert audio to base64 for transmission
-        const reader = new FileReader();
-        reader.readAsDataURL(audioBlob);
-
-        reader.onload = async () => {
-          try {
-            const base64Audio = (reader.result as string).split(',')[1];
-
-            // Call ElevenLabs Conversational API with signed URL
-            // The signed URL already includes authentication
-            const conversationResponse = await fetch(signedUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                audio: base64Audio,
-                mode: 'speech',
-              }),
-            });
-
-            if (!conversationResponse.ok) {
-              const errorData = await conversationResponse.text();
-              throw new Error(`ElevenLabs API error: ${errorData}`);
-            }
-
-            const data = await conversationResponse.json();
-            console.log('[v0] Agent response:', data);
-
-            // Parse the agent response to extract filters
-            const filters = parseAgentResponse(data.text || data.message || '');
-            if (onFiltersDetected) {
-              onFiltersDetected(filters);
-            }
-          } catch (err) {
-            const message = err instanceof Error ? err.message : 'Failed to process audio';
-            setError(message);
-            console.error('[v0] Error processing audio:', err);
-          } finally {
-            setIsProcessing(false);
-          }
-        };
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to stop recording';
-        setError(message);
-        setIsProcessing(false);
-        console.error('[v0] Error stopping recording:', err);
+  const stopListening = useCallback(async () => {
+    try {
+      setIsListening(false);
+      if (conversationRef.current) {
+        console.log('[v0] Ending ElevenLabs conversation session...');
+        await conversationRef.current.endSession();
+        conversationRef.current = null;
       }
-    },
-    []
-  );
+    } catch (err) {
+      console.error('[v0] Error stopping conversation:', err);
+    } finally {
+      setIsProcessing(false);
+    }
+  }, []);
 
   return {
     isListening,
     isProcessing,
     error,
+    lastAction,
     startListening,
     stopListening,
   };
-}
-
-// Parse natural language response from agent into structured filters
-function parseAgentResponse(text: string): ParsedFilters {
-  const filters: ParsedFilters = {};
-
-  // Convert to lowercase for easier matching
-  const lower = text.toLowerCase();
-
-  // Extract category/product type
-  const categoryMatch = lower.match(
-    /(?:show|find|looking for)\s+(?:me\s+)?(?:a\s+)?([a-z\s-]+?)(?:\s+with|\s+in|\s+under|\s+price|\s+made|$)/i
-  );
-  if (categoryMatch) {
-    filters.category = [categoryMatch[1].trim()];
-  }
-
-  // Extract price ranges
-  if (lower.includes('under') || lower.includes('less than')) {
-    const priceMatch = lower.match(/(?:under|less than|below)\s*\$?(\d+)/i);
-    if (priceMatch) {
-      filters.priceRange = `0-${priceMatch[1]}`;
-    }
-  } else if (lower.includes('over') || lower.includes('more than')) {
-    const priceMatch = lower.match(/(?:over|more than|above)\s*\$?(\d+)/i);
-    if (priceMatch) {
-      filters.priceRange = `${priceMatch[1]}-999`;
-    }
-  }
-
-  // Extract fabric/material type
-  const fabricMatch = lower.match(
-    /(?:fabric|material|made of|in|with)\s+([a-z\s-]+?)(?:\s+fabric|\s+material|,|$)/i
-  );
-  if (fabricMatch) {
-    filters.fabric = fabricMatch[1].trim();
-  }
-
-  // Extract color
-  const colorMatch = lower.match(
-    /(?:color|in|with)\s+([a-z]+?)(?:\s+color|,|$)/i
-  );
-  if (colorMatch) {
-    filters.color = colorMatch[1].trim();
-  }
-
-  console.log('[v0] Parsed filters:', filters);
-  return filters;
 }
