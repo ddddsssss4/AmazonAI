@@ -1,12 +1,14 @@
+import { useEffect } from 'react';
 import { Mic, MicOff, Zap } from 'lucide-react';
-import { useElevenLabsAgent, type ParsedFilters, type AgentToolCallbacks } from '../hooks/useElevenLabsAgent';
+import { useAgent, type AgentToolCallbacks } from '../contexts/ElevenLabsAgentContext';
 
 interface VoiceFilterButtonProps {
-  onFiltersDetected: (filters: ParsedFilters) => void;
+  onFiltersDetected: (filters: any) => void;
   onClearFilters: () => void;
   onAddToCart?: (productId: number, quantity: number) => void;
   onNavigateToProduct?: (productId: number) => void;
   getFilteredProductCount?: () => number;
+  getFilteredProducts?: () => any[];
 }
 
 export default function VoiceFilterButton({ 
@@ -15,27 +17,54 @@ export default function VoiceFilterButton({
   onAddToCart,
   onNavigateToProduct,
   getFilteredProductCount,
+  getFilteredProducts,
 }: VoiceFilterButtonProps) {
-  const callbacks: AgentToolCallbacks = {
-    onFiltersDetected,
-    onClearFilters,
-    onAddToCart,
-    onNavigateToProduct,
-    getFilteredProductCount,
-  };
+  const { 
+    isListening, 
+    isProcessing, 
+    error, 
+    lastAction, 
+    startListening, 
+    stopListening,
+    registerCallbacks,
+    clearError
+  } = useAgent();
 
-  const { isListening, isProcessing, error, lastAction, startListening, stopListening } = useElevenLabsAgent(callbacks);
+  // Register callbacks when component mounts or callbacks change
+  useEffect(() => {
+    const callbacks: AgentToolCallbacks = {
+      onFiltersDetected,
+      onClearFilters,
+      onAddToCart,
+      onNavigateToProduct,
+      getFilteredProductCount,
+      getFilteredProducts,
+    };
+    registerCallbacks(callbacks);
+  }, [onFiltersDetected, onClearFilters, onAddToCart, onNavigateToProduct, getFilteredProductCount, getFilteredProducts, registerCallbacks]);
 
   const handleToggle = async () => {
     if (isListening) {
       await stopListening();
     } else {
+      clearError();
       await startListening();
     }
   };
 
   return (
     <div className="space-y-3">
+      {/* Connection Status Indicator */}
+      {isListening && (
+        <div className="flex items-center gap-2 px-3 py-2 bg-green-100 border-2 border-green-500 rounded-sm">
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+          </span>
+          <span className="font-mono text-xs text-green-700 font-bold uppercase">Agent Connected</span>
+        </div>
+      )}
+
       {/* Main Toggle Button */}
       <button
         onClick={handleToggle}
@@ -57,7 +86,7 @@ export default function VoiceFilterButton({
         ) : isProcessing ? (
           <>
             <Mic size={20} className="animate-pulse" />
-            Processing...
+            Connecting...
           </>
         ) : (
           <>
@@ -88,7 +117,6 @@ export default function VoiceFilterButton({
           <div className="pl-5 space-y-0.5">
             {(() => {
               try {
-                // Parse the JSON from "Filtering: {...}"
                 const jsonStr = lastAction.replace('Filtering: ', '');
                 const filters = JSON.parse(jsonStr);
                 const items: string[] = [];
@@ -132,10 +160,9 @@ export default function VoiceFilterButton({
             <button
               onClick={async () => {
                 try {
-                  // Force request microphone permission again
                   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                   stream.getTracks().forEach(track => track.stop());
-                  // If successful, try starting the listener
+                  clearError();
                   await startListening();
                 } catch (e) {
                   console.error('[v0] Retry permission failed:', e);
