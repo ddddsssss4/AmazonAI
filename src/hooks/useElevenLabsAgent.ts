@@ -198,7 +198,21 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
 
       conversationRef.current = conversation;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to start voice session';
+      let message = 'Failed to start voice session';
+      
+      if (err instanceof Error) {
+        message = err.message;
+        
+        // Provide specific guidance for permission errors
+        if (message.includes('Permission denied') || message.includes('NotAllowedError')) {
+          message = 'Microphone permission denied. Please allow microphone access in your browser settings.';
+        } else if (message.includes('NotFoundError')) {
+          message = 'No microphone found. Please check your device has a working microphone.';
+        } else if (message.includes('NotReadableError')) {
+          message = 'Microphone is in use by another application. Please close other apps using the microphone.';
+        }
+      }
+      
       setError(message);
       setIsListening(false);
       setIsProcessing(false);
