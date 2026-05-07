@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, Tag, Truck, CheckCircle } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import { useAgent } from '../contexts/ElevenLabsAgentContext';
 
 type CheckoutStep = 'cart' | 'details' | 'confirmed';
 
@@ -21,14 +22,23 @@ interface FormData {
 
 export default function Cart() {
   const { items, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
+  const { registerCheckoutCallbacks } = useAgent();
   const [step, setStep] = useState<CheckoutStep>('cart');
   const [form, setForm] = useState<FormData>({
     name: '', email: '', phone: '', address: '', city: '', pincode: '',
     paymentMethod: 'card', cardNumber: '', cardExpiry: '', cardCvv: '', upiId: ''
   });
 
+  // Keep a ref to the latest form setter so the agent can call it without stale closures
+  const formRef = useRef(form);
+  formRef.current = form;
+  const stepRef = useRef(step);
+  stepRef.current = step;
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
+
   const deliveryCharge = totalPrice > 500 ? 0 : 49;
-  const discount = totalPrice * 0.05; // 5% coupon discount placeholder
+  const discount = totalPrice * 0.05;
   const finalTotal = totalPrice + deliveryCharge - discount;
   const orderNumber = `AMZ-${Date.now().toString().slice(-8)}`;
 
@@ -36,11 +46,37 @@ export default function Cart() {
     setForm(prev => ({ ...prev, [field]: value }));
   };
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePlaceOrder = (e?: React.FormEvent) => {
+    e?.preventDefault();
     setStep('confirmed');
     clearCart();
   };
+
+  // Register callbacks so the voice agent can fill the form and place the order
+  useEffect(() => {
+    registerCheckoutCallbacks({
+      fillForm: (data) => {
+        setForm(prev => ({ ...prev, ...data }));
+        setStep('details');
+      },
+      proceedToCheckout: () => {
+        setStep('details');
+      },
+      placeOrder: () => {
+        handlePlaceOrder();
+      },
+      getCartSummary: () => ({
+        items: itemsRef.current,
+        total: itemsRef.current.reduce((sum, item) => {
+          const price = item.product.discount > 0
+            ? item.product.price * (1 - item.product.discount / 100)
+            : item.product.price;
+          return sum + price * item.quantity;
+        }, 0),
+      }),
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [registerCheckoutCallbacks]);
 
   if (step === 'confirmed') {
     return (
@@ -194,7 +230,7 @@ export default function Cart() {
           )}
 
           {step === 'details' && (
-            <form id="checkout-form" onSubmit={handlePlaceOrder} className="flex flex-col gap-6">
+            <form id="checkout-form" onSubmit={(e) => handlePlaceOrder(e)} className="flex flex-col gap-6">
 
               {/* Delivery Address */}
               <div className="border-2 border-black p-5 bg-white">

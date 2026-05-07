@@ -1,13 +1,19 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Mic, MicOff } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import { useAgent } from '../contexts/ElevenLabsAgentContext';
 
 export default function Layout() {
-  const { isListening, stopListening } = useAgent();
+  const { isListening, stopListening, registerNavigate } = useAgent();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Give the agent access to navigate so it can route the user programmatically
+  useEffect(() => {
+    registerNavigate(navigate);
+  }, [navigate, registerNavigate]);
   const isOnShopPage = location.pathname === '/shop';
 
   return (

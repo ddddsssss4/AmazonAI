@@ -15,12 +15,29 @@ interface AgentState {
   lastAction: string | null;
 }
 
+interface CheckoutFormData {
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  pincode?: string;
+  paymentMethod?: 'card' | 'upi' | 'cod';
+}
+
 interface AgentContextType extends AgentState {
   startListening: () => Promise<void>;
   stopListening: () => Promise<void>;
   registerCallbacks: (callbacks: AgentToolCallbacks) => void;
   clearError: () => void;
   setCurrentProduct: (product: any | null) => void;
+  registerCheckoutCallbacks: (cb: {
+    fillForm: (data: CheckoutFormData) => void;
+    proceedToCheckout: () => void;
+    placeOrder: () => void;
+    getCartSummary: () => { items: any[]; total: number };
+  }) => void;
+  registerNavigate: (fn: (path: string) => void) => void;
 }
 
 const AgentContext = createContext<AgentContextType | null>(null);
@@ -80,12 +97,30 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
   const conversationRef = useRef<Awaited<ReturnType<typeof Conversation.startSession>> | null>(null);
   const callbacksRef = useRef<AgentToolCallbacks>({});
   const intentionalDisconnectRef = useRef(false);
-  // Holds the product currently being viewed so voice commands like "add this" work
   const currentProductRef = useRef<any | null>(null);
+  const checkoutCallbacksRef = useRef<{
+    fillForm: (data: CheckoutFormData) => void;
+    proceedToCheckout: () => void;
+    placeOrder: () => void;
+    getCartSummary: () => { items: any[]; total: number };
+  } | null>(null);
+  const navigateRef = useRef<((path: string) => void) | null>(null);
 
   const setCurrentProduct = useCallback((product: any | null) => {
     currentProductRef.current = product;
-    console.log('[v0] Current product set to:', product?.name ?? 'none');
+  }, []);
+
+  const registerCheckoutCallbacks = useCallback((cb: {
+    fillForm: (data: CheckoutFormData) => void;
+    proceedToCheckout: () => void;
+    placeOrder: () => void;
+    getCartSummary: () => { items: any[]; total: number };
+  }) => {
+    checkoutCallbacksRef.current = cb;
+  }, []);
+
+  const registerNavigate = useCallback((fn: (path: string) => void) => {
+    navigateRef.current = fn;
   }, []);
 
   // Register callbacks from components (e.g., Shop page)
@@ -285,6 +320,7 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
                 setLastAction(`Added ${qty}x ${current.name} to cart`);
                 cartAddToCart(current, qty);
                 if (callbacksRef.current.onAddToCart) callbacksRef.current.onAddToCart(current.id, qty);
+                if (navigateRef.current) navigateRef.current('/cart');
                 const effectivePrice = current.discount > 0 ? current.price * (1 - current.discount / 100) : current.price;
                 const successResult = { success: true, message: `Added ${qty}x ${current.name} to your cart. Item total: $${(effectivePrice * qty).toFixed(2)}.` };
                 debugLogger.log({ action: 'addToCart', level: 'success', incomingParams: params, result: successResult });
@@ -310,6 +346,7 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
               setLastAction(`Added ${qty}x ${product.name} to cart`);
               cartAddToCart(product, qty);
               if (callbacksRef.current.onAddToCart) callbacksRef.current.onAddToCart(product.id, qty);
+              if (navigateRef.current) navigateRef.current('/cart');
               const effectivePrice = product.discount > 0 ? product.price * (1 - product.discount / 100) : product.price;
               const successResult = { success: true, message: `Added ${qty}x ${product.name} to your cart. Item total: $${(effectivePrice * qty).toFixed(2)}.` };
               debugLogger.log({ action: 'addToCart', level: 'success', incomingParams: params, result: successResult });
@@ -431,6 +468,100 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
               return { success: false, message: `Error navigating: ${errorMsg}` };
             }
           },
+
+          // Tool: View cart page
+          viewCart: async () => {
+            console.log('[v0] Tool called: viewCart');
+            try {
+              if (navigateRef.current) navigateRef.current('/cart');
+              setLastAction('Navigated to cart');
+              const summary = checkoutCallbacksRef.current?.getCartSummary();
+              const result = { success: true, message: summary && summary.items.length > 0
+                ? `Opened your cart. You have ${summary.items.length} item(s). Total: $${summary.total.toFixed(2)}.`
+                : 'Opened your cart. It is currently empty.' };
+              debugLogger.log({ action: 'viewCart', level: 'success', incomingParams: {}, result });
+              return result;
+            } catch (err) {
+              const errorMsg = err instanceof Error ? err.message : String(err);
+              debugLogger.log({ action: 'viewCart', level: 'error', incomingParams: {}, error: errorMsg });
+              return { success: false, message: `Error: ${errorMsg}` };
+            }
+          },
+
+          // Tool: Fill checkout form and place order
+          checkout: async (params: {
+            name?: string;
+            email?: string;
+            phone?: string;
+            address?: string;
+            city?: string;
+            pincode?: string;
+            paymentMethod?: 'card' | 'upi' | 'cod';
+            placeOrder?: boolean;
+          }) => {
+            console.log('[v0] Tool called: checkout', params);
+            try {
+              debugLogger.log({ action: 'checkout', level: 'info', incomingParams: params });
+
+              // Navigate to cart first if not there
+              if (navigateRef.current) navigateRef.current('/cart');
+
+              if (!checkoutCallbacksRef.current) {
+                // Give the Cart page a moment to mount and register its callbacks
+                await new Promise(resolve => setTimeout(resolve, 600));
+              }
+
+              if (!checkoutCallbacksRef.current) {
+                const errResult = { success: false, message: 'Cart page is not open. Navigating to cart now — please try again.' };
+                debugLogger.log({ action: 'checkout', level: 'error', incomingParams: params, error: 'No checkout callbacks registered' });
+                return errResult;
+              }
+
+              const cb = checkoutCallbacksRef.current;
+
+              // Fill in any provided form fields
+              const formData: CheckoutFormData = {};
+              if (params.name) formData.name = params.name;
+              if (params.email) formData.email = params.email;
+              if (params.phone) formData.phone = params.phone;
+              if (params.address) formData.address = params.address;
+              if (params.city) formData.city = params.city;
+              if (params.pincode) formData.pincode = params.pincode;
+              if (params.paymentMethod) formData.paymentMethod = params.paymentMethod;
+
+              if (Object.keys(formData).length > 0) {
+                cb.fillForm(formData);
+                cb.proceedToCheckout(); // move to the details step
+                setLastAction('Filling checkout form');
+              }
+
+              // If user asked to place the order
+              if (params.placeOrder) {
+                const summary = cb.getCartSummary();
+                if (summary.items.length === 0) {
+                  const errResult = { success: false, message: 'Your cart is empty. Please add items first.' };
+                  debugLogger.log({ action: 'checkout', level: 'error', incomingParams: params, error: 'Cart is empty', result: errResult });
+                  return errResult;
+                }
+                await new Promise(resolve => setTimeout(resolve, 300));
+                cb.placeOrder();
+                setLastAction('Order placed');
+                const successResult = { success: true, message: `Order placed successfully! Total was $${summary.total.toFixed(2)}.` };
+                debugLogger.log({ action: 'checkout', level: 'success', incomingParams: params, result: successResult });
+                return successResult;
+              }
+
+              const filledFields = Object.keys(formData).join(', ') || 'none';
+              const successResult = { success: true, message: `Filled checkout fields: ${filledFields}. Tell me if you want to place the order.` };
+              debugLogger.log({ action: 'checkout', level: 'success', incomingParams: params, result: successResult });
+              return successResult;
+            } catch (err) {
+              const errorMsg = err instanceof Error ? err.message : String(err);
+              console.error('[v0] checkout tool crashed:', err);
+              debugLogger.log({ action: 'checkout', level: 'error', incomingParams: params, error: errorMsg });
+              return { success: false, message: `Checkout error: ${errorMsg}` };
+            }
+          },
         },
 
         onMessage: ({ message, source }) => {
@@ -531,6 +662,8 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
         registerCallbacks,
         clearError,
         setCurrentProduct,
+        registerCheckoutCallbacks,
+        registerNavigate,
       }}
     >
       {children}
