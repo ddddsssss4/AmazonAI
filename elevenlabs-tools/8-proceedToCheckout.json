@@ -1,0 +1,18 @@
+{
+  "type": "client",
+  "name": "proceedToCheckout",
+  "description": "Navigate from cart page to checkout form page. Use when user says 'proceed to checkout', 'checkout', 'help me checkout', 'I want to buy', 'complete my purchase', or similar. After navigating, ask the user for their delivery details one by one.",
+  "expects_response": true,
+  "response_timeout_secs": 2,
+  "parameters": [],
+  "dynamic_variables": {
+    "dynamic_variable_placeholders": {}
+  },
+  "assignments": [],
+  "disable_interruptions": true,
+  "pre_tool_speech": "auto",
+  "tool_call_sound": null,
+  "tool_call_sound_behavior": "auto",
+  "execution_mode": "immediate",
+  "response_mocks": []
+}

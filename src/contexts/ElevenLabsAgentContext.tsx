@@ -488,6 +488,21 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
             }
           },
 
+          // Tool: Proceed to checkout page (navigates from cart to checkout form)
+          proceedToCheckout: async () => {
+            console.log('[v0] Tool called: proceedToCheckout');
+            try {
+              if (navigateRef.current) navigateRef.current('/checkout');
+              setLastAction('Navigated to checkout');
+              debugLogger.log({ action: 'proceedToCheckout', level: 'success', incomingParams: {}, result: { success: true } });
+              return { success: true, message: 'Opening checkout page. Please tell me your delivery details - name, email, phone, address, city, and pincode.' };
+            } catch (err) {
+              const errorMsg = err instanceof Error ? err.message : String(err);
+              debugLogger.log({ action: 'proceedToCheckout', level: 'error', incomingParams: {}, error: errorMsg });
+              return { success: false, message: `Error: ${errorMsg}` };
+            }
+          },
+
           // Tool: Fill checkout form and place order
           checkout: async (params: {
             name?: string;
@@ -503,16 +518,16 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
             try {
               debugLogger.log({ action: 'checkout', level: 'info', incomingParams: params });
 
-              // Navigate to cart first if not there
-              if (navigateRef.current) navigateRef.current('/cart');
+              // Navigate to checkout page
+              if (navigateRef.current) navigateRef.current('/checkout');
 
               if (!checkoutCallbacksRef.current) {
-                // Give the Cart page a moment to mount and register its callbacks
-                await new Promise(resolve => setTimeout(resolve, 600));
+                // Brief wait for Checkout page to mount
+                await new Promise(resolve => setTimeout(resolve, 200));
               }
 
               if (!checkoutCallbacksRef.current) {
-                const errResult = { success: false, message: 'Cart page is not open. Navigating to cart now — please try again.' };
+                const errResult = { success: false, message: 'Navigating to checkout page now. Please repeat your details.' };
                 debugLogger.log({ action: 'checkout', level: 'error', incomingParams: params, error: 'No checkout callbacks registered' });
                 return errResult;
               }
@@ -543,7 +558,6 @@ export function ElevenLabsAgentProvider({ children }: { children: ReactNode }) {
                   debugLogger.log({ action: 'checkout', level: 'error', incomingParams: params, error: 'Cart is empty', result: errResult });
                   return errResult;
                 }
-                await new Promise(resolve => setTimeout(resolve, 300));
                 cb.placeOrder();
                 setLastAction('Order placed');
                 const successResult = { success: true, message: `Order placed successfully! Total was $${summary.total.toFixed(2)}.` };

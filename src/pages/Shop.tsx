@@ -551,11 +551,16 @@ export default function Shop() {
     clearAll();
   };
 
+  // Called by UI button click - adds to cart + shows confirmation
   const handleAddToCart = (productId: number, quantity: number) => {
     const product = DATA_PRODUCTS.find(p => p.id === productId);
     if (!product) return;
     addToCart(product, quantity);
-    // Show brief "added" confirmation on the card
+    showAddedConfirmation(productId);
+  };
+
+  // Called by voice agent callback - only shows confirmation (agent already added to cart)
+  const showAddedConfirmation = (productId: number) => {
     setAddedIds(prev => new Set(prev).add(productId));
     setTimeout(() => setAddedIds(prev => {
       const next = new Set(prev);
@@ -634,7 +639,7 @@ export default function Shop() {
             <VoiceFilterButton 
               onFiltersDetected={handleVoiceFilters}
               onClearFilters={handleClearFilters}
-              onAddToCart={handleAddToCart}
+              onAddToCart={showAddedConfirmation}
               onNavigateToProduct={handleNavigateToProduct}
               getFilteredProductCount={getFilteredProductCount}
               getFilteredProducts={getFilteredProducts}
