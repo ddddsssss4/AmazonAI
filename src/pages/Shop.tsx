@@ -558,6 +558,8 @@ export default function Shop() {
 
   const getFilteredProductCount = () => filteredProducts.length;
 
+  const getFilteredProducts = () => filteredProducts;
+
   // ── filter logic ──────────────────────────────────────────────────────────
   const filteredProducts = ALL_PRODUCTS.filter(p => {
     if (selectedCategories.length && !selectedCategories.includes(p.category)) return false;
@@ -622,6 +624,7 @@ export default function Shop() {
               onAddToCart={handleAddToCart}
               onNavigateToProduct={handleNavigateToProduct}
               getFilteredProductCount={getFilteredProductCount}
+              getFilteredProducts={getFilteredProducts}
             />
             {voiceFiltersApplied && (
               <div className="mt-3 bg-electric-pink bg-opacity-10 border-2 border-electric-pink p-2 font-mono text-xs text-black">

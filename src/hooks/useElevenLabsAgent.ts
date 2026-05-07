@@ -23,6 +23,7 @@ export interface AgentToolCallbacks {
   onAddToCart?: (productId: number, quantity: number) => void;
   onNavigateToProduct?: (productId: number) => void;
   getFilteredProductCount?: () => number;
+  getFilteredProducts?: () => any[]; // Returns filtered product list for AI context
 }
 
 // Relative path — Vite proxy forwards /api/* to localhost:3001 server-side
@@ -75,10 +76,31 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
               callbacksRef.current.onFiltersDetected(params);
             }
             
-            const count = callbacksRef.current.getFilteredProductCount?.() ?? ALL_PRODUCTS.length;
+            const filteredProducts = callbacksRef.current.getFilteredProducts?.() ?? [];
+            const count = filteredProducts.length;
+            
+            if (count === 0) {
+              return { 
+                success: true, 
+                productsFound: 0,
+                message: `No products found matching your criteria. Please try adjusting your filters.` 
+              };
+            }
+            
+            // Send product details to AI so it can generate meaningful responses
+            const productSummary = filteredProducts.slice(0, 5).map((p: any) => ({
+              name: p.name,
+              price: p.price,
+              brand: p.brand,
+              category: p.category,
+              rating: p.rating
+            }));
+            
             return { 
               success: true, 
-              message: `Filters applied. Found ${count} products matching your criteria.` 
+              productsFound: count,
+              topProducts: productSummary,
+              message: `Found ${count} products matching your criteria. Top results include: ${productSummary.map(p => `${p.name} ($${p.price})`).join(', ')}.` 
             };
           },
 
