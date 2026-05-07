@@ -1,14 +1,14 @@
 {
   "type": "client",
   "name": "applyFilters",
-  "description": "Apply filters to find products. Use this when the user asks for specific products, prices, brands, colors, or other product attributes.",
+  "description": "Apply filters to find products. Use this when the user asks for specific products, prices, brands, colors, or categories. IMPORTANT: Use EXACT category names from the available list.",
   "expects_response": true,
   "response_timeout_secs": 1,
   "parameters": [
     {
       "id": "categories",
       "type": "string",
-      "description": "Product categories to filter by (e.g., Clothing, Tech, Home)",
+      "description": "Product category to filter by. MUST be one of these EXACT values: Keyboards, Audio, Power, Mice, T-Shirts, Dresses, Kurtas, Sweatshirts, Leather, Lights & Lighting, Kitchen & Home, Furniture. Use 'Keyboards' for keyboard requests, 'Audio' for headphones/earphones/speakers, 'Mice' for mouse products, 'Power' for chargers/batteries/power banks.",
       "dynamic_variable": "",
       "required": false,
       "constant_value": "",
@@ -17,7 +17,7 @@
     {
       "id": "priceMin",
       "type": "number",
-      "description": "Minimum price in dollars",
+      "description": "Minimum price in dollars (e.g., 50 for $50 minimum)",
       "dynamic_variable": "",
       "required": false,
       "constant_value": "",
@@ -26,7 +26,7 @@
     {
       "id": "priceMax",
       "type": "number",
-      "description": "Maximum price in dollars",
+      "description": "Maximum price in dollars (e.g., 100 for under $100)",
       "dynamic_variable": "",
       "required": false,
       "constant_value": "",
@@ -35,7 +35,7 @@
     {
       "id": "brands",
       "type": "string",
-      "description": "Brand names to filter by (e.g., Apple, Sony, Nike)",
+      "description": "Brand name to filter by. MUST be one of: AUSK, Samfor, DEELMO, Imsa Moda, NexaFlair, GREGILOOKS, ESSA",
       "dynamic_variable": "",
       "required": false,
       "constant_value": "",
@@ -44,7 +44,7 @@
     {
       "id": "colours",
       "type": "string",
-      "description": "Color options (e.g., Black, White, Red, Blue)",
+      "description": "Color to filter by. MUST be one of: Black, White, Gray, Red, Blue",
       "dynamic_variable": "",
       "required": false,
       "constant_value": "",
@@ -53,7 +53,7 @@
     {
       "id": "freeShipping",
       "type": "boolean",
-      "description": "Only show products with free shipping",
+      "description": "Set to true to only show products with free shipping",
       "dynamic_variable": "",
       "required": false,
       "constant_value": "",
@@ -62,7 +62,7 @@
     {
       "id": "minRating",
       "type": "number",
-      "description": "Minimum star rating (1-5)",
+      "description": "Minimum star rating from 1 to 5 (e.g., 4 for 4+ stars)",
       "dynamic_variable": "",
       "required": false,
       "constant_value": "",
@@ -71,7 +71,7 @@
     {
       "id": "minDiscount",
       "type": "number",
-      "description": "Minimum discount percentage",
+      "description": "Minimum discount percentage (e.g., 20 for 20% off or more)",
       "dynamic_variable": "",
       "required": false,
       "constant_value": "",
@@ -80,7 +80,7 @@
     {
       "id": "sortBy",
       "type": "string",
-      "description": "Sort option: price_low, price_high, rating, discount",
+      "description": "Sort results by: price_low (cheapest first), price_high (most expensive first), rating (highest rated), discount (biggest discounts)",
       "dynamic_variable": "",
       "required": false,
       "constant_value": "",

@@ -1,14 +1,14 @@
 {
   "type": "client",
   "name": "getProductDetails",
-  "description": "Get detailed information about a specific product including price, description, specs, and reviews.",
+  "description": "Get detailed information about a specific product including price, description, specs, and availability. Use when user asks about product details, specifications, or wants more info.",
   "expects_response": true,
-  "response_timeout_secs": 1,
+  "response_timeout_secs": 2,
   "parameters": [
     {
-      "id": "productId",
-      "type": "number",
-      "description": "The ID of the product to get details for",
+      "id": "productName",
+      "type": "string",
+      "description": "The name, description, or identifying features of the product to get details for. Examples: 'mechanical keyboard', 'wireless mouse', 'black kurta'.",
       "dynamic_variable": "",
       "required": true,
       "constant_value": "",

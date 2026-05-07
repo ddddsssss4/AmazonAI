@@ -8,18 +8,26 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import Product from './pages/Product';
+import Cart from './pages/Cart';
+import { ElevenLabsAgentProvider } from './contexts/ElevenLabsAgentContext';
+import { CartProvider } from './contexts/CartContext';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="shop" element={<Shop />} />
-          <Route path="product/:id" element={<Product />} />
-          <Route path="product" element={<Product />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <CartProvider>
+      <ElevenLabsAgentProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="shop" element={<Shop />} />
+              <Route path="product/:id" element={<Product />} />
+              <Route path="product" element={<Product />} />
+              <Route path="cart" element={<Cart />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </ElevenLabsAgentProvider>
+    </CartProvider>
   );
 }

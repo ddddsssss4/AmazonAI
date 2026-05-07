@@ -1,0 +1,91 @@
+{
+  "type": "client",
+  "name": "checkout",
+  "description": "Fill the checkout form with the user's delivery and payment details, and optionally place the order. Use this when the user says things like 'checkout with name John email john@gmail.com', 'my address is 123 Main Street Mumbai', 'pay by cash on delivery', 'place my order', or 'confirm order'. You can fill individual fields progressively or all at once. Always confirm with the user before setting placeOrder to true.",
+  "expects_response": true,
+  "response_timeout_secs": 5,
+  "parameters": [
+    {
+      "id": "name",
+      "type": "string",
+      "description": "Customer's full name for delivery. Example: 'John Doe'",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "email",
+      "type": "string",
+      "description": "Customer's email address. Example: 'john@example.com'",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "phone",
+      "type": "string",
+      "description": "Customer's phone number. Example: '+91 9876543210'",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "address",
+      "type": "string",
+      "description": "Full street delivery address. Example: '123, MG Road, Koramangala'",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "city",
+      "type": "string",
+      "description": "City for delivery. Example: 'Mumbai', 'Bangalore', 'Delhi'",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "pincode",
+      "type": "string",
+      "description": "Postal or PIN code. Example: '400001'",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "paymentMethod",
+      "type": "string",
+      "description": "Payment method to select. Must be one of: 'card' (Credit/Debit Card), 'upi' (UPI), 'cod' (Cash on Delivery). Infer from user speech: 'cash' or 'cash on delivery' = cod, 'UPI' or 'PhonePe' or 'GPay' = upi, 'card' or 'credit' or 'debit' = card.",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    },
+    {
+      "id": "placeOrder",
+      "type": "boolean",
+      "description": "Set to true ONLY when the user explicitly confirms they want to place and finalise the order. Do NOT set this to true just for filling details. Only use when user says 'place order', 'confirm order', 'yes go ahead', 'submit order', or similar confirmation phrases.",
+      "dynamic_variable": "",
+      "required": false,
+      "constant_value": "",
+      "value_type": "llm_prompt"
+    }
+  ],
+  "dynamic_variables": {
+    "dynamic_variable_placeholders": {}
+  },
+  "assignments": [],
+  "disable_interruptions": true,
+  "pre_tool_speech": "auto",
+  "tool_call_sound": null,
+  "tool_call_sound_behavior": "auto",
+  "execution_mode": "immediate",
+  "response_mocks": []
+}

@@ -1,9 +1,12 @@
-import { ShoppingCart, Heart, ArrowLeft, ArrowRight, Zap, Star, ChevronDown, ChevronUp } from 'lucide-react';
+import { ShoppingCart, Heart, ArrowLeft, ArrowRight, Zap, Star, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import VoiceFilterButton from '../components/VoiceFilterButton';
 import ProductHoverSpeaker from '../components/ProductHoverSpeaker';
+import { DebugPanel } from '../components/DebugPanel';
 import { type ParsedFilters } from '../hooks/useElevenLabsAgent';
+import { useCart } from '../contexts/CartContext';
+import { ALL_PRODUCTS as DATA_PRODUCTS } from '../data/products';
 
 // ── types ──────────────────────────────────────────────────────────────────────
 interface Product {
@@ -456,6 +459,8 @@ function FilterSection({ title, children, defaultOpen = true }: { title: string;
 // ── main component ────────────────────────────────────────────��────────────────
 export default function Shop() {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedColours, setSelectedColours] = useState<string[]>([]);
@@ -469,19 +474,22 @@ export default function Shop() {
 
   // ── voice handlers ─────────────────────────────────────────────────────────
   const handleVoiceFilters = (filters: ParsedFilters) => {
-    // Apply categories
-    if (filters.categories?.length) {
-      setSelectedCategories(filters.categories);
+    // Apply categories - normalize to array (AI now sends exact category names)
+    if (filters.categories) {
+      const cats = Array.isArray(filters.categories) ? filters.categories : [filters.categories];
+      if (cats.length) setSelectedCategories(cats);
     }
     
-    // Apply brands
-    if (filters.brands?.length) {
-      setSelectedBrands(filters.brands);
+    // Apply brands - normalize to array if needed
+    if (filters.brands) {
+      const brands = Array.isArray(filters.brands) ? filters.brands : [filters.brands];
+      if (brands.length) setSelectedBrands(brands);
     }
     
-    // Apply colours
-    if (filters.colours?.length) {
-      setSelectedColours(filters.colours);
+    // Apply colours - normalize to array if needed
+    if (filters.colours) {
+      const colors = Array.isArray(filters.colours) ? filters.colours : [filters.colours];
+      if (colors.length) setSelectedColours(colors);
     }
     
     // Apply price range
@@ -519,9 +527,18 @@ export default function Shop() {
     
     // Build feedback string
     const parts: string[] = [];
-    if (filters.categories?.length) parts.push(`Category: ${filters.categories.join(', ')}`);
-    if (filters.brands?.length) parts.push(`Brand: ${filters.brands.join(', ')}`);
-    if (filters.colours?.length) parts.push(`Color: ${filters.colours.join(', ')}`);
+    if (filters.categories) {
+      const cats = Array.isArray(filters.categories) ? filters.categories : [filters.categories];
+      if (cats.length) parts.push(`Category: ${cats.join(', ')}`);
+    }
+    if (filters.brands) {
+      const brands = Array.isArray(filters.brands) ? filters.brands : [filters.brands];
+      if (brands.length) parts.push(`Brand: ${brands.join(', ')}`);
+    }
+    if (filters.colours) {
+      const colors = Array.isArray(filters.colours) ? filters.colours : [filters.colours];
+      if (colors.length) parts.push(`Color: ${colors.join(', ')}`);
+    }
     if (filters.priceMin !== undefined || filters.priceMax !== undefined) {
       parts.push(`Price: $${filters.priceMin ?? 0}-$${filters.priceMax ?? '999+'}`);
     }
@@ -535,9 +552,16 @@ export default function Shop() {
   };
 
   const handleAddToCart = (productId: number, quantity: number) => {
-    // For now, just log - cart integration will be added
-    console.log(`[v0] Add to cart: Product ${productId}, Qty: ${quantity}`);
-    // TODO: Integrate with cart context when available
+    const product = DATA_PRODUCTS.find(p => p.id === productId);
+    if (!product) return;
+    addToCart(product, quantity);
+    // Show brief "added" confirmation on the card
+    setAddedIds(prev => new Set(prev).add(productId));
+    setTimeout(() => setAddedIds(prev => {
+      const next = new Set(prev);
+      next.delete(productId);
+      return next;
+    }), 1500);
   };
 
   const handleNavigateToProduct = (productId: number) => {
@@ -565,6 +589,8 @@ export default function Shop() {
     if (sortBy === 'Top Rated') return b.rating - a.rating;
     return b.discount - a.discount; // Performance = biggest discount first
   });
+
+  const getFilteredProducts = () => filteredProducts;
 
   const toggle = <T extends string>(
     list: T[],
@@ -596,6 +622,7 @@ export default function Shop() {
 
   return (
     <main className="flex-grow w-full max-w-[1600px] mx-auto px-6 py-12 flex flex-col md:flex-row gap-8 relative">
+      <DebugPanel />
 
       {/* ── Sidebar ──────────────────────────────────────────────────────── */}
       <aside className="w-full md:w-[260px] shrink-0">
@@ -610,6 +637,7 @@ export default function Shop() {
               onAddToCart={handleAddToCart}
               onNavigateToProduct={handleNavigateToProduct}
               getFilteredProductCount={getFilteredProductCount}
+              getFilteredProducts={getFilteredProducts}
             />
             {voiceFiltersApplied && (
               <div className="mt-3 bg-electric-pink bg-opacity-10 border-2 border-electric-pink p-2 font-mono text-xs text-black">
@@ -885,8 +913,19 @@ export default function Shop() {
                     {product.description}
                   </p>
                   <div className="flex gap-2">
-                    <button className="bg-white text-black border-2 border-black font-mono font-bold px-4 py-2.5 uppercase flex-grow text-center hover:bg-black hover:text-white transition-colors neo-button flex items-center justify-center gap-2 text-sm">
-                      <ShoppingCart size={16} /> Add to Cart
+                    <button
+                      onClick={() => handleAddToCart(product.id, 1)}
+                      className={`border-2 border-black font-mono font-bold px-4 py-2.5 uppercase flex-grow text-center transition-colors neo-button flex items-center justify-center gap-2 text-sm ${
+                        addedIds.has(product.id)
+                          ? 'bg-black text-white'
+                          : 'bg-white text-black hover:bg-black hover:text-white'
+                      }`}
+                    >
+                      {addedIds.has(product.id) ? (
+                        <><Check size={16} /> Added</>
+                      ) : (
+                        <><ShoppingCart size={16} /> Add to Cart</>
+                      )}
                     </button>
                     <button className="bg-surface-container text-black border-2 border-black p-2.5 hover:bg-electric-pink hover:text-white transition-colors neo-button flex items-center justify-center">
                       <Heart size={18} />
