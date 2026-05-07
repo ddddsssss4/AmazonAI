@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, Tag, Truck, CheckCircle } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, Tag, Truck, CheckCircle, Mic, ChevronDown, ChevronUp } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAgent } from '../contexts/ElevenLabsAgentContext';
 
@@ -22,8 +22,9 @@ interface FormData {
 
 export default function Cart() {
   const { items, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
-  const { registerCheckoutCallbacks } = useAgent();
+  const { registerCheckoutCallbacks, isListening } = useAgent();
   const [step, setStep] = useState<CheckoutStep>('cart');
+  const [voiceGuideOpen, setVoiceGuideOpen] = useState(true);
   const [form, setForm] = useState<FormData>({
     name: '', email: '', phone: '', address: '', city: '', pincode: '',
     paymentMethod: 'card', cardNumber: '', cardExpiry: '', cardCvv: '', upiId: ''
@@ -137,9 +138,70 @@ export default function Cart() {
         <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Continue Shopping
       </Link>
 
-      <h1 className="font-headline text-4xl font-black uppercase mb-8 border-b-2 border-black pb-4">
+      <h1 className="font-headline text-4xl font-black uppercase mb-4 border-b-2 border-black pb-4">
         {step === 'cart' ? `Shopping Cart (${totalItems})` : 'Checkout'}
       </h1>
+
+      {/* Voice Command Guide */}
+      {isListening && (
+        <div className="mb-6 border-2 border-black bg-white neo-shadow">
+          <button
+            onClick={() => setVoiceGuideOpen(p => !p)}
+            className="w-full flex items-center justify-between px-4 py-3 font-mono font-bold text-sm uppercase hover:bg-surface-container transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-electric-pink opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-electric-pink"></span>
+              </span>
+              <Mic size={14} />
+              Voice Commands Available
+            </span>
+            {voiceGuideOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
+
+          {voiceGuideOpen && (
+            <div className="border-t-2 border-black px-4 py-4 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+
+              {step === 'cart' ? (
+                <>
+                  <div className="sm:col-span-2 font-mono text-xs text-gray-500 uppercase font-bold mb-1">On this page you can say:</div>
+                  {[
+                    { say: '"Checkout with name John, email john@gmail.com"', does: 'Fills your name & email and moves to checkout form' },
+                    { say: '"My address is 123 MG Road, Bangalore, 560001"', does: 'Fills address, city and pincode' },
+                    { say: '"Pay by cash on delivery"', does: 'Selects Cash on Delivery as payment' },
+                    { say: '"Pay by UPI"', does: 'Selects UPI as payment method' },
+                    { say: '"Remove the dress from cart"', does: 'Removes that item from your cart' },
+                    { say: '"Place my order"', does: 'Confirms and places the order' },
+                  ].map(({ say, does }) => (
+                    <div key={say} className="flex flex-col gap-0.5">
+                      <span className="font-mono text-xs font-black text-black bg-surface-container px-2 py-1 border border-black">{say}</span>
+                      <span className="font-mono text-xs text-gray-500 pl-1">{does}</span>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <div className="sm:col-span-2 font-mono text-xs text-gray-500 uppercase font-bold mb-1">Fill the form by voice:</div>
+                  {[
+                    { say: '"My name is Sarah Khan"', does: 'Fills the Full Name field' },
+                    { say: '"Email is sarah@gmail.com"', does: 'Fills the Email field' },
+                    { say: '"Phone number 9876543210"', does: 'Fills the Phone field' },
+                    { say: '"Address is 45 Park Street, Mumbai, 400001"', does: 'Fills address, city and pincode' },
+                    { say: '"Pay by card" / "UPI" / "cash on delivery"', does: 'Selects payment method' },
+                    { say: '"Yes, place my order" / "Confirm order"', does: 'Places the final order' },
+                  ].map(({ say, does }) => (
+                    <div key={say} className="flex flex-col gap-0.5">
+                      <span className="font-mono text-xs font-black text-black bg-surface-container px-2 py-1 border border-black">{say}</span>
+                      <span className="font-mono text-xs text-gray-500 pl-1">{does}</span>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 

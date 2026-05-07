@@ -1,0 +1,18 @@
+{
+  "type": "client",
+  "name": "viewCart",
+  "description": "Navigate the user to their shopping cart page to review all added items, totals, and proceed to checkout. Use when user says 'show cart', 'open cart', 'go to cart', 'view my bag', 'what is in my cart', or similar.",
+  "expects_response": true,
+  "response_timeout_secs": 2,
+  "parameters": [],
+  "dynamic_variables": {
+    "dynamic_variable_placeholders": {}
+  },
+  "assignments": [],
+  "disable_interruptions": true,
+  "pre_tool_speech": "auto",
+  "tool_call_sound": null,
+  "tool_call_sound_behavior": "auto",
+  "execution_mode": "immediate",
+  "response_mocks": []
+}
