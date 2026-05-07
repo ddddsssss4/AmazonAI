@@ -69,6 +69,12 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
         clientTools: {
           // Tool: Apply shopping filters
           applyFilters: async (params: ParsedFilters) => {
+            const debugData = {
+              timestamp: new Date().toISOString(),
+              action: 'applyFilters',
+              incomingParams: JSON.parse(JSON.stringify(params)),
+            };
+            
             console.log('[v0] Tool called: applyFilters', params);
             setLastAction(`Filtering: ${JSON.stringify(params)}`);
             
@@ -79,7 +85,30 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
             const filteredProducts = callbacksRef.current.getFilteredProducts?.() ?? [];
             const count = filteredProducts.length;
             
+            debugData.filteredProductCount = count;
+            debugData.filteredProducts = filteredProducts.slice(0, 10).map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              price: p.price,
+              category: p.category,
+              colour: p.colour,
+              colours: p.colours
+            }));
+            
+            // Save debug data to localStorage for inspection
+            const debugLogs = JSON.parse(localStorage.getItem('voiceFilterDebug') || '[]');
+            debugLogs.push(debugData);
+            localStorage.setItem('voiceFilterDebug', JSON.stringify(debugLogs.slice(-100))); // Keep last 100
+            
+            console.log('[v0] Filtered products count:', count);
+            console.log('[v0] Filtered products:', filteredProducts);
+            console.log('[v0] Debug logs saved to localStorage');
+            
             if (count === 0) {
+              console.warn('[v0] WARNING: No products found after filtering!');
+              console.warn('[v0] Filter params were:', params);
+              console.warn('[v0] All products count:', ALL_PRODUCTS.length);
+              
               return { 
                 success: true, 
                 productsFound: 0,
@@ -96,11 +125,15 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
               rating: p.rating
             }));
             
+            const responseMessage = `Found ${count} products matching your criteria. Top results include: ${productSummary.map(p => `${p.name} ($${p.price})`).join(', ')}.`;
+            
+            debugData.responseMessage = responseMessage;
+            
             return { 
               success: true, 
               productsFound: count,
               topProducts: productSummary,
-              message: `Found ${count} products matching your criteria. Top results include: ${productSummary.map(p => `${p.name} ($${p.price})`).join(', ')}.` 
+              message: responseMessage
             };
           },
 
@@ -190,7 +223,7 @@ export function useElevenLabsAgent(callbacks: AgentToolCallbacks = {}) {
           },
         },
 
-        // ── Event Handlers ─────────────────────────────────────────────────
+        // ── Event Handlers ───────────────────���─────────────────────────────
         onMessage: ({ message, source }) => {
           console.log('[v0] Agent message:', source, message);
         },

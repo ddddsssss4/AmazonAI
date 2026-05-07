@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import VoiceFilterButton from '../components/VoiceFilterButton';
 import ProductHoverSpeaker from '../components/ProductHoverSpeaker';
+import { DebugPanel } from '../components/DebugPanel';
 import { type ParsedFilters } from '../hooks/useElevenLabsAgent';
 
 // ── types ──────────────────────────────────────────────────────────────────────
@@ -558,8 +559,6 @@ export default function Shop() {
 
   const getFilteredProductCount = () => filteredProducts.length;
 
-  const getFilteredProducts = () => filteredProducts;
-
   // ── filter logic ──────────────────────────────────────────────────────────
   const filteredProducts = ALL_PRODUCTS.filter(p => {
     if (selectedCategories.length && !selectedCategories.includes(p.category)) return false;
@@ -579,6 +578,8 @@ export default function Shop() {
     if (sortBy === 'Top Rated') return b.rating - a.rating;
     return b.discount - a.discount; // Performance = biggest discount first
   });
+
+  const getFilteredProducts = () => filteredProducts;
 
   const toggle = <T extends string>(
     list: T[],
@@ -610,6 +611,7 @@ export default function Shop() {
 
   return (
     <main className="flex-grow w-full max-w-[1600px] mx-auto px-6 py-12 flex flex-col md:flex-row gap-8 relative">
+      <DebugPanel />
 
       {/* ── Sidebar ──────────────────────────────────────────────────────── */}
       <aside className="w-full md:w-[260px] shrink-0">
