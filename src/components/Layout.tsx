@@ -29,7 +29,7 @@ export default function Layout() {
           </p>
         </div>
         <a
-          href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+          href="https://www.youtube.com/watch?v=xOZmbpLeolY"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 shrink-0 px-3 py-1.5 bg-electric-pink text-white font-mono text-xs font-black uppercase border-2 border-electric-pink hover:bg-white hover:text-black transition-colors"
