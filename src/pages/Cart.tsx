@@ -1,117 +1,21 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, Tag, Truck, CheckCircle, Mic, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, Mic, ChevronDown, ChevronUp } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAgent } from '../contexts/ElevenLabsAgentContext';
 
-type CheckoutStep = 'cart' | 'details' | 'confirmed';
-
-interface FormData {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  pincode: string;
-  paymentMethod: 'card' | 'upi' | 'cod';
-  cardNumber: string;
-  cardExpiry: string;
-  cardCvv: string;
-  upiId: string;
-}
-
 export default function Cart() {
-  const { items, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
-  const { registerCheckoutCallbacks, isListening } = useAgent();
-  const [step, setStep] = useState<CheckoutStep>('cart');
+  const navigate = useNavigate();
+  const { items, removeFromCart, updateQuantity, totalItems, totalPrice } = useCart();
+  const { isListening } = useAgent();
   const [voiceGuideOpen, setVoiceGuideOpen] = useState(true);
-  const [form, setForm] = useState<FormData>({
-    name: '', email: '', phone: '', address: '', city: '', pincode: '',
-    paymentMethod: 'card', cardNumber: '', cardExpiry: '', cardCvv: '', upiId: ''
-  });
-
-  // Keep a ref to the latest form setter so the agent can call it without stale closures
-  const formRef = useRef(form);
-  formRef.current = form;
-  const stepRef = useRef(step);
-  stepRef.current = step;
-  const itemsRef = useRef(items);
-  itemsRef.current = items;
 
   const deliveryCharge = totalPrice > 500 ? 0 : 49;
   const discount = totalPrice * 0.05;
   const finalTotal = totalPrice + deliveryCharge - discount;
-  const orderNumber = `AMZ-${Date.now().toString().slice(-8)}`;
 
-  const handleField = (field: keyof FormData, value: string) => {
-    setForm(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handlePlaceOrder = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    setStep('confirmed');
-    clearCart();
-  };
-
-  // Register callbacks so the voice agent can fill the form and place the order
-  useEffect(() => {
-    registerCheckoutCallbacks({
-      fillForm: (data) => {
-        setForm(prev => ({ ...prev, ...data }));
-        setStep('details');
-      },
-      proceedToCheckout: () => {
-        setStep('details');
-      },
-      placeOrder: () => {
-        handlePlaceOrder();
-      },
-      getCartSummary: () => ({
-        items: itemsRef.current,
-        total: itemsRef.current.reduce((sum, item) => {
-          const price = item.product.discount > 0
-            ? item.product.price * (1 - item.product.discount / 100)
-            : item.product.price;
-          return sum + price * item.quantity;
-        }, 0),
-      }),
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [registerCheckoutCallbacks]);
-
-  if (step === 'confirmed') {
-    return (
-      <div className="flex-grow w-full max-w-2xl mx-auto px-6 py-16 flex flex-col items-center text-center gap-6">
-        <div className="border-2 border-black p-6 bg-green-50 neo-shadow">
-          <CheckCircle size={64} className="text-green-600 mx-auto mb-4" />
-          <h1 className="font-headline text-4xl font-black uppercase mb-2">Order Placed!</h1>
-          <p className="font-mono text-gray-600 mb-1">Thank you, {form.name}.</p>
-          <p className="font-mono text-sm text-gray-500">Order ID: <span className="font-bold text-black">{orderNumber}</span></p>
-        </div>
-        <div className="border-2 border-black p-5 w-full text-left bg-white">
-          <h2 className="font-mono font-bold uppercase text-sm mb-3">Delivery Details</h2>
-          <p className="font-body text-sm text-gray-700">{form.address}, {form.city} - {form.pincode}</p>
-          <p className="font-body text-sm text-gray-500 mt-1">Estimated delivery: 3-5 business days</p>
-        </div>
-        <div className="flex gap-3 w-full">
-          <Link
-            to="/shop"
-            className="flex-1 py-3 border-2 border-black font-mono font-bold uppercase text-center hover:bg-black hover:text-white transition-colors"
-          >
-            Continue Shopping
-          </Link>
-          <Link
-            to="/"
-            className="flex-1 py-3 bg-black text-white border-2 border-black font-mono font-bold uppercase text-center hover:bg-electric-pink transition-colors"
-          >
-            Go Home
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (items.length === 0 && step !== 'confirmed') {
+  // Empty cart
+  if (items.length === 0) {
     return (
       <div className="flex-grow w-full max-w-xl mx-auto px-6 py-24 flex flex-col items-center text-center gap-6">
         <ShoppingBag size={72} className="text-gray-300" />
@@ -129,8 +33,6 @@ export default function Cart() {
 
   return (
     <div className="flex-grow w-full max-w-7xl mx-auto px-6 py-8">
-
-      {/* Back */}
       <Link
         to="/shop"
         className="inline-flex items-center gap-2 font-mono text-sm font-bold uppercase hover:text-electric-pink transition-colors mb-6 group"
@@ -139,7 +41,7 @@ export default function Cart() {
       </Link>
 
       <h1 className="font-headline text-4xl font-black uppercase mb-4 border-b-2 border-black pb-4">
-        {step === 'cart' ? `Shopping Cart (${totalItems})` : 'Checkout'}
+        Shopping Cart ({totalItems})
       </h1>
 
       {/* Voice Command Guide */}
@@ -155,328 +57,142 @@ export default function Cart() {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-electric-pink"></span>
               </span>
               <Mic size={14} />
-              Voice Commands Available
+              Voice Commands
             </span>
             {voiceGuideOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
 
           {voiceGuideOpen && (
             <div className="border-t-2 border-black px-4 py-4 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
-
-              {step === 'cart' ? (
-                <>
-                  <div className="sm:col-span-2 font-mono text-xs text-gray-500 uppercase font-bold mb-1">On this page you can say:</div>
-                  {[
-                    { say: '"Checkout with name John, email john@gmail.com"', does: 'Fills your name & email and moves to checkout form' },
-                    { say: '"My address is 123 MG Road, Bangalore, 560001"', does: 'Fills address, city and pincode' },
-                    { say: '"Pay by cash on delivery"', does: 'Selects Cash on Delivery as payment' },
-                    { say: '"Pay by UPI"', does: 'Selects UPI as payment method' },
-                    { say: '"Remove the dress from cart"', does: 'Removes that item from your cart' },
-                    { say: '"Place my order"', does: 'Confirms and places the order' },
-                  ].map(({ say, does }) => (
-                    <div key={say} className="flex flex-col gap-0.5">
-                      <span className="font-mono text-xs font-black text-black bg-surface-container px-2 py-1 border border-black">{say}</span>
-                      <span className="font-mono text-xs text-gray-500 pl-1">{does}</span>
-                    </div>
-                  ))}
-                </>
-              ) : (
-                <>
-                  <div className="sm:col-span-2 font-mono text-xs text-gray-500 uppercase font-bold mb-1">Fill the form by voice:</div>
-                  {[
-                    { say: '"My name is Sarah Khan"', does: 'Fills the Full Name field' },
-                    { say: '"Email is sarah@gmail.com"', does: 'Fills the Email field' },
-                    { say: '"Phone number 9876543210"', does: 'Fills the Phone field' },
-                    { say: '"Address is 45 Park Street, Mumbai, 400001"', does: 'Fills address, city and pincode' },
-                    { say: '"Pay by card" / "UPI" / "cash on delivery"', does: 'Selects payment method' },
-                    { say: '"Yes, place my order" / "Confirm order"', does: 'Places the final order' },
-                  ].map(({ say, does }) => (
-                    <div key={say} className="flex flex-col gap-0.5">
-                      <span className="font-mono text-xs font-black text-black bg-surface-container px-2 py-1 border border-black">{say}</span>
-                      <span className="font-mono text-xs text-gray-500 pl-1">{does}</span>
-                    </div>
-                  ))}
-                </>
-              )}
+              <div className="sm:col-span-2 font-mono text-xs text-gray-500 uppercase font-bold mb-1">On this page, say:</div>
+              {[
+                { say: '"Proceed to checkout"', does: 'Go to checkout form' },
+                { say: '"Help me checkout"', does: 'Navigate to checkout and agent will guide you' },
+                { say: '"Remove the keyboard"', does: 'Remove item from cart' },
+              ].map(({ say, does }) => (
+                <div key={say} className="flex flex-col gap-0.5">
+                  <span className="font-mono text-xs font-black text-black bg-surface-container px-2 py-1 border border-black">{say}</span>
+                  <span className="font-mono text-xs text-gray-500 pl-1">{does}</span>
+                </div>
+              ))}
             </div>
           )}
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Cart Items */}
+        <div className="lg:col-span-8 space-y-4">
+          {items.map((item) => {
+            const effectivePrice = item.product.discount > 0
+              ? item.product.price * (1 - item.product.discount / 100)
+              : item.product.price;
+            return (
+              <div
+                key={`${item.product.id}-${item.selectedColour}`}
+                className="flex gap-4 border-2 border-black p-4 bg-white neo-shadow"
+              >
+                <Link to={`/product/${item.product.id}`} className="shrink-0">
+                  <img
+                    src={item.product.image}
+                    alt={item.product.name}
+                    className="w-28 h-28 object-cover border-2 border-black"
+                  />
+                </Link>
 
-        {/* Left: Cart Items or Checkout Form */}
-        <div className="lg:col-span-8">
-
-          {step === 'cart' && (
-            <div className="flex flex-col gap-4">
-              {items.map(item => {
-                const effectivePrice = item.product.discount > 0
-                  ? item.product.price * (1 - item.product.discount / 100)
-                  : item.product.price;
-                return (
-                  <div
-                    key={`${item.product.id}-${item.selectedColour}`}
-                    className="flex gap-4 border-2 border-black p-4 bg-white neo-shadow"
+                <div className="flex flex-col flex-grow gap-1 min-w-0">
+                  <Link
+                    to={`/product/${item.product.id}`}
+                    className="font-headline text-lg font-black uppercase leading-tight hover:text-electric-pink transition-colors"
                   >
-                    {/* Image */}
-                    <Link to={`/product/${item.product.id}`} className="shrink-0">
-                      <img
-                        src={item.product.image}
-                        alt={item.product.name}
-                        className="w-28 h-28 object-cover border-2 border-black"
-                      />
-                    </Link>
+                    {item.product.name}
+                  </Link>
+                  <p className="font-mono text-xs text-gray-500 uppercase">{item.product.brand} • {item.selectedColour}</p>
+                  {item.product.freeShipping && (
+                    <span className="font-mono text-xs font-bold text-green-700">FREE Delivery</span>
+                  )}
 
-                    {/* Details */}
-                    <div className="flex flex-col flex-grow gap-1 min-w-0">
-                      <Link
-                        to={`/product/${item.product.id}`}
-                        className="font-headline text-lg font-black uppercase leading-tight hover:text-electric-pink transition-colors"
+                  <div className="flex items-center gap-4 mt-auto pt-2 flex-wrap">
+                    <div className="flex items-center border-2 border-black">
+                      <button
+                        onClick={() => updateQuantity(item.product.id, item.selectedColour, item.quantity - 1)}
+                        className="px-3 py-1.5 font-mono font-bold hover:bg-black hover:text-white transition-colors"
                       >
-                        {item.product.name}
-                      </Link>
-                      <p className="font-mono text-xs text-gray-500 uppercase">{item.product.brand} &bull; {item.selectedColour}</p>
-                      {item.product.freeShipping && (
-                        <span className="font-mono text-xs font-bold text-green-700">FREE Delivery</span>
-                      )}
-
-                      <div className="flex items-center gap-4 mt-auto pt-2 flex-wrap">
-                        {/* Qty controls */}
-                        <div className="flex items-center border-2 border-black">
-                          <button
-                            onClick={() => updateQuantity(item.product.id, item.selectedColour, item.quantity - 1)}
-                            className="px-3 py-1.5 font-mono font-bold hover:bg-black hover:text-white transition-colors"
-                          >
-                            <Minus size={14} />
-                          </button>
-                          <span className="px-4 py-1.5 font-mono font-bold text-sm border-x-2 border-black">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() => updateQuantity(item.product.id, item.selectedColour, item.quantity + 1)}
-                            className="px-3 py-1.5 font-mono font-bold hover:bg-black hover:text-white transition-colors"
-                          >
-                            <Plus size={14} />
-                          </button>
-                        </div>
-
-                        {/* Remove */}
-                        <button
-                          onClick={() => removeFromCart(item.product.id, item.selectedColour)}
-                          className="flex items-center gap-1 font-mono text-xs font-bold text-red-600 hover:text-red-800 uppercase"
-                        >
-                          <Trash2 size={14} /> Remove
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Price */}
-                    <div className="shrink-0 text-right flex flex-col justify-between items-end">
-                      <span className="font-headline text-xl font-black">
-                        ${(effectivePrice * item.quantity).toFixed(2)}
+                        <Minus size={14} />
+                      </button>
+                      <span className="px-4 py-1.5 font-mono font-bold text-sm border-x-2 border-black">
+                        {item.quantity}
                       </span>
-                      {item.product.discount > 0 && (
-                        <span className="font-mono text-xs text-gray-400 line-through">
-                          ${(item.product.price * item.quantity).toFixed(2)}
-                        </span>
-                      )}
-                      <span className="font-mono text-xs text-gray-500">
-                        ${effectivePrice.toFixed(2)} each
-                      </span>
+                      <button
+                        onClick={() => updateQuantity(item.product.id, item.selectedColour, item.quantity + 1)}
+                        className="px-3 py-1.5 font-mono font-bold hover:bg-black hover:text-white transition-colors"
+                      >
+                        <Plus size={14} />
+                      </button>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
 
-          {step === 'details' && (
-            <form id="checkout-form" onSubmit={(e) => handlePlaceOrder(e)} className="flex flex-col gap-6">
-
-              {/* Delivery Address */}
-              <div className="border-2 border-black p-5 bg-white">
-                <h2 className="font-mono font-bold uppercase text-sm mb-4 pb-2 border-b-2 border-black">Delivery Address</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[
-                    { label: 'Full Name', field: 'name' as const, placeholder: 'John Doe', required: true },
-                    { label: 'Email', field: 'email' as const, placeholder: 'john@example.com', required: true },
-                    { label: 'Phone', field: 'phone' as const, placeholder: '+91 9876543210', required: true },
-                    { label: 'City', field: 'city' as const, placeholder: 'Mumbai', required: true },
-                    { label: 'Pincode', field: 'pincode' as const, placeholder: '400001', required: true },
-                  ].map(({ label, field, placeholder, required }) => (
-                    <div key={field} className="flex flex-col gap-1">
-                      <label className="font-mono text-xs uppercase font-bold">{label}</label>
-                      <input
-                        type="text"
-                        required={required}
-                        placeholder={placeholder}
-                        value={form[field]}
-                        onChange={e => handleField(field, e.target.value)}
-                        className="border-2 border-black px-3 py-2.5 font-mono text-sm focus:outline-none focus:border-electric-pink"
-                      />
-                    </div>
-                  ))}
-                  <div className="flex flex-col gap-1 sm:col-span-2">
-                    <label className="font-mono text-xs uppercase font-bold">Full Address</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="123, Street Name, Area"
-                      value={form.address}
-                      onChange={e => handleField('address', e.target.value)}
-                      className="border-2 border-black px-3 py-2.5 font-mono text-sm focus:outline-none focus:border-electric-pink"
-                    />
+                    <button
+                      onClick={() => removeFromCart(item.product.id, item.selectedColour)}
+                      className="flex items-center gap-1 font-mono text-xs font-bold text-red-600 hover:text-red-800 uppercase"
+                    >
+                      <Trash2 size={14} /> Remove
+                    </button>
                   </div>
                 </div>
-              </div>
 
-              {/* Payment Method */}
-              <div className="border-2 border-black p-5 bg-white">
-                <h2 className="font-mono font-bold uppercase text-sm mb-4 pb-2 border-b-2 border-black">Payment Method</h2>
-
-                <div className="flex flex-col gap-3 mb-4">
-                  {(['card', 'upi', 'cod'] as const).map(method => (
-                    <label key={method} className={`flex items-center gap-3 p-3 border-2 cursor-pointer transition-colors ${
-                      form.paymentMethod === method ? 'border-electric-pink bg-pink-50' : 'border-black hover:border-gray-400'
-                    }`}>
-                      <input
-                        type="radio"
-                        name="payment"
-                        value={method}
-                        checked={form.paymentMethod === method}
-                        onChange={() => handleField('paymentMethod', method)}
-                        className="accent-electric-pink"
-                      />
-                      <span className="font-mono font-bold text-sm uppercase">
-                        {method === 'card' ? 'Credit / Debit Card' : method === 'upi' ? 'UPI' : 'Cash on Delivery'}
-                      </span>
-                    </label>
-                  ))}
+                <div className="shrink-0 text-right flex flex-col justify-between items-end">
+                  <span className="font-headline text-xl font-black">
+                    ${(effectivePrice * item.quantity).toFixed(2)}
+                  </span>
+                  {item.product.discount > 0 && (
+                    <span className="font-mono text-xs text-gray-400 line-through">
+                      ${(item.product.price * item.quantity).toFixed(2)}
+                    </span>
+                  )}
+                  <span className="font-mono text-xs text-gray-500">
+                    ${effectivePrice.toFixed(2)} each
+                  </span>
                 </div>
-
-                {form.paymentMethod === 'card' && (
-                  <div className="flex flex-col gap-3 pt-2">
-                    <div className="flex flex-col gap-1">
-                      <label className="font-mono text-xs uppercase font-bold">Card Number</label>
-                      <input
-                        type="text"
-                        placeholder="4242 4242 4242 4242"
-                        maxLength={19}
-                        value={form.cardNumber}
-                        onChange={e => handleField('cardNumber', e.target.value)}
-                        className="border-2 border-black px-3 py-2.5 font-mono text-sm focus:outline-none focus:border-electric-pink"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex flex-col gap-1">
-                        <label className="font-mono text-xs uppercase font-bold">Expiry (MM/YY)</label>
-                        <input
-                          type="text"
-                          placeholder="12/26"
-                          maxLength={5}
-                          value={form.cardExpiry}
-                          onChange={e => handleField('cardExpiry', e.target.value)}
-                          className="border-2 border-black px-3 py-2.5 font-mono text-sm focus:outline-none focus:border-electric-pink"
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <label className="font-mono text-xs uppercase font-bold">CVV</label>
-                        <input
-                          type="password"
-                          placeholder="***"
-                          maxLength={3}
-                          value={form.cardCvv}
-                          onChange={e => handleField('cardCvv', e.target.value)}
-                          className="border-2 border-black px-3 py-2.5 font-mono text-sm focus:outline-none focus:border-electric-pink"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {form.paymentMethod === 'upi' && (
-                  <div className="flex flex-col gap-1 pt-2">
-                    <label className="font-mono text-xs uppercase font-bold">UPI ID</label>
-                    <input
-                      type="text"
-                      placeholder="yourname@upi"
-                      value={form.upiId}
-                      onChange={e => handleField('upiId', e.target.value)}
-                      className="border-2 border-black px-3 py-2.5 font-mono text-sm focus:outline-none focus:border-electric-pink"
-                    />
-                  </div>
-                )}
-
-                {form.paymentMethod === 'cod' && (
-                  <p className="font-mono text-sm text-gray-600 pt-2">Pay with cash when your order is delivered.</p>
-                )}
               </div>
-            </form>
-          )}
+            );
+          })}
         </div>
 
-        {/* Right: Order Summary */}
-        <div className="lg:col-span-4 flex flex-col gap-4 lg:sticky lg:top-24">
-          <div className="border-2 border-black p-5 bg-white neo-shadow">
+        {/* Order Summary */}
+        <div className="lg:col-span-4">
+          <div className="border-2 border-black p-5 bg-white sticky top-24">
             <h2 className="font-mono font-bold uppercase text-sm mb-4 pb-2 border-b-2 border-black">Order Summary</h2>
-
-            <div className="flex flex-col gap-2 font-mono text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal ({totalItems} items)</span>
-                <span className="font-bold">${totalPrice.toFixed(2)}</span>
+            <div className="space-y-2 mb-4">
+              <div className="flex justify-between font-mono text-sm">
+                <span>Subtotal ({totalItems} items)</span>
+                <span>${totalPrice.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600 flex items-center gap-1"><Truck size={13} /> Delivery</span>
-                <span className={deliveryCharge === 0 ? 'font-bold text-green-700' : 'font-bold'}>
+              <div className="flex justify-between font-mono text-sm">
+                <span>Delivery</span>
+                <span className={deliveryCharge === 0 ? 'text-green-700 font-bold' : ''}>
                   {deliveryCharge === 0 ? 'FREE' : `$${deliveryCharge.toFixed(2)}`}
                 </span>
               </div>
-              <div className="flex justify-between text-green-700">
-                <span className="flex items-center gap-1"><Tag size={13} /> Discount (5%)</span>
-                <span className="font-bold">-${discount.toFixed(2)}</span>
+              <div className="flex justify-between font-mono text-sm text-green-600">
+                <span>Discount (5%)</span>
+                <span>-${discount.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between border-t-2 border-black pt-3 mt-1">
-                <span className="font-black uppercase">Total</span>
-                <span className="font-black text-xl text-electric-pink">${finalTotal.toFixed(2)}</span>
+              <div className="border-t-2 border-black pt-2 flex justify-between font-headline text-lg font-black">
+                <span>TOTAL</span>
+                <span className="text-electric-pink">${finalTotal.toFixed(2)}</span>
               </div>
             </div>
-
-            {deliveryCharge > 0 && (
-              <p className="font-mono text-xs text-gray-500 mt-3 border-t border-gray-200 pt-2">
-                Add ${(500 - totalPrice).toFixed(2)} more for FREE delivery
-              </p>
+            {totalPrice < 500 && (
+              <p className="font-mono text-xs text-gray-500 mb-4">Add ${(500 - totalPrice).toFixed(2)} more for FREE delivery</p>
             )}
-          </div>
-
-          {/* CTA Button */}
-          {step === 'cart' ? (
             <button
-              onClick={() => setStep('details')}
-              className="w-full py-4 bg-electric-pink text-white border-2 border-black font-headline text-xl font-black uppercase neo-shadow hover:bg-black transition-colors"
+              onClick={() => navigate('/checkout')}
+              className="w-full py-4 bg-electric-pink text-white font-headline font-black uppercase border-2 border-black neo-shadow-pink-lg neo-hover-sink-pink transition-all"
             >
               Proceed to Checkout
             </button>
-          ) : (
-            <button
-              type="submit"
-              form="checkout-form"
-              className="w-full py-4 bg-black text-white border-2 border-black font-headline text-xl font-black uppercase neo-shadow hover:bg-electric-pink transition-colors"
-            >
-              Place Order
-            </button>
-          )}
-
-          {step === 'details' && (
-            <button
-              onClick={() => setStep('cart')}
-              className="w-full py-3 bg-white text-black border-2 border-black font-mono font-bold uppercase text-sm hover:bg-surface-container transition-colors"
-            >
-              Back to Cart
-            </button>
-          )}
+          </div>
         </div>
-
       </div>
     </div>
   );
