@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-import { Mic, MicOff } from 'lucide-react';
+import { Mic, MicOff, VideoIcon } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import { useAgent } from '../contexts/ElevenLabsAgentContext';
@@ -19,6 +19,26 @@ export default function Layout() {
   return (
     <div className="min-h-screen flex flex-col selection:bg-electric-pink selection:text-white">
       <Header />
+
+      {/* No Credits Banner */}
+      <div className="w-full bg-black text-white border-b-4 border-electric-pink px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-3 text-center">
+        <div className="flex items-center gap-2">
+          <span className="inline-block w-2 h-2 rounded-full bg-electric-pink shrink-0"></span>
+          <p className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wide">
+            ElevenLabs credits exhausted &mdash; Voice agent is offline for this demo
+          </p>
+        </div>
+        <a
+          href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 shrink-0 px-3 py-1.5 bg-electric-pink text-white font-mono text-xs font-black uppercase border-2 border-electric-pink hover:bg-white hover:text-black transition-colors"
+        >
+          <VideoIcon size={13} />
+          Watch Demo
+        </a>
+      </div>
+
       <div className="flex-grow flex flex-col">
         <Outlet />
       </div>
